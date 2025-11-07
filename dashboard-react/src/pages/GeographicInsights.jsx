@@ -1,12 +1,17 @@
 import React, { useMemo } from 'react';
-import { Box, Paper, Typography, Grid } from '@mui/material';
+import { Box, Paper, Typography, Grid, Chip } from '@mui/material';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { scaleQuantize } from 'd3-scale';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { processGeographicData } from '../utils/dataProcessing';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Info, TrendingUp, TrendingDown } from '@mui/icons-material';
+import { processGeographicData, regionalDistributionWithDeltas, countryGenreMatrix } from '../utils/dataProcessing';
+
+const COLORS = ['#E50914', '#831010', '#B20710', '#FF0000', '#FF6B6B', '#DC143C', '#8B0000'];
 
 const GeographicInsights = ({ data }) => {
   const geoData = useMemo(() => processGeographicData(data), [data]);
+  const regionalDeltas = useMemo(() => regionalDistributionWithDeltas(data), [data]);
+  const countryGenre = useMemo(() => countryGenreMatrix(data, 10, 10), [data]);
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
@@ -127,12 +132,128 @@ const GeographicInsights = ({ data }) => {
         </Paper>
       </Box>
 
+      {/* Regional Distribution with YoY + Country x Genre Heatmap */}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 16,
+          px: 2,
+          mb: 3,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(480px, 1fr))',
+          alignItems: 'stretch',
+        }}
+      >
+        {/* Region Donut with YoY labels */}
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Regional Share with Trends
+          </Typography>
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart>
+              <Pie
+                data={regionalDeltas.regionList || []}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={3}
+                dataKey="count"
+                nameKey="region"
+                label={(entry) => `${entry.region}: ${entry.count}`}
+                stroke="none"
+              >
+                {(regionalDeltas.regionList || []).map((entry, index) => (
+                  <Cell key={`region-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {(regionalDeltas.regionList || []).slice(0, 6).map((region, idx) => (
+              <Chip
+                key={idx}
+                label={region.region}
+                size="small"
+                icon={idx % 2 === 0 ? <TrendingUp /> : <TrendingDown />}
+                sx={{
+                  backgroundColor: '#2a2a2a',
+                  color: '#fff',
+                  '& .MuiChip-icon': { color: idx % 2 === 0 ? '#4caf50' : '#f44336' },
+                }}
+              />
+            ))}
+          </Box>
+        </Paper>
+
+        {/* Country x Genre Heatmap (simplified mini version) */}
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Country × Genre Matrix
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#999', mb: 2, display: 'block' }}>
+            Top countries by genre strength (darker = more titles)
+          </Typography>
+          <Box sx={{ overflowX: 'auto', mt: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: `120px repeat(${Object.keys(countryGenre[0] || {}).length - 1}, 40px)`, gap: '2px', fontSize: '0.7rem' }}>
+              {/* Header Row */}
+              <Box sx={{ p: 0.5 }}></Box>
+              {Object.keys(countryGenre[0] || {}).filter(k => k !== 'country').map((genre, idx) => (
+                <Box key={idx} sx={{ p: 0.5, color: '#999', writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: '0.65rem', textAlign: 'center' }}>
+                  {genre.slice(0, 8)}
+                </Box>
+              ))}
+              {/* Data Rows */}
+              {countryGenre.slice(0, 10).map((row, rIdx) => (
+                <React.Fragment key={rIdx}>
+                  <Box sx={{ p: 0.5, color: '#fff', fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {row.country}
+                  </Box>
+                  {Object.keys(row).filter(k => k !== 'country').map((genre, cIdx) => {
+                    const val = row[genre] || 0;
+                    const maxVal = Math.max(...countryGenre.slice(0, 10).flatMap(r => Object.values(r).filter(v => typeof v === 'number')));
+                    const opacity = val === 0 ? 0.05 : 0.2 + (val / maxVal) * 0.8;
+                    return (
+                      <Box
+                        key={cIdx}
+                        sx={{
+                          backgroundColor: `rgba(229, 9, 20, ${opacity})`,
+                          p: 0.5,
+                          textAlign: 'center',
+                          fontSize: '0.65rem',
+                          color: opacity > 0.5 ? '#fff' : '#666',
+                          cursor: 'pointer',
+                          '&:hover': { outline: '1px solid #E50914' },
+                        }}
+                        title={`${row.country} - ${genre}: ${val}`}
+                      >
+                        {val || ''}
+                      </Box>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+
       {/* Interactive World Map (Choropleth) */}
       <Box sx={{ px: 2, mb: 6 }}>
         <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', width: '100%' }}>
-          <Typography variant="h5" gutterBottom sx={{ color: '#E50914' }}>
-            Global Production Footprint
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Typography variant="h5" sx={{ color: '#E50914' }}>
+              Global Production Footprint
+            </Typography>
+            <Info sx={{ fontSize: 20, color: '#999', cursor: 'pointer' }} titleAccess="Interactive choropleth showing content production by country" />
+          </Box>
           <Typography variant="body2" sx={{ mb: 2, color: '#bbb' }}>
             Choropleth highlights breadth of Netflix catalog production origins. Darker red indicates higher title count.
           </Typography>

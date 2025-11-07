@@ -1,10 +1,14 @@
 import React, { useMemo } from 'react';
 import { Box, Paper, Typography, Grid } from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { processCreatorData } from '../utils/dataProcessing';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
+import { Star } from '@mui/icons-material';
+import { processCreatorData, newCreatorsByYear, topCreatorsByAvgRating } from '../utils/dataProcessing';
 
 const CreatorHub = ({ data }) => {
   const creatorData = useMemo(() => processCreatorData(data), [data]);
+  const newCreators = useMemo(() => newCreatorsByYear(data), [data]);
+  const topDirectorsByRating = useMemo(() => topCreatorsByAvgRating(data, 'director', 3), [data]);
+  const topActorsByRating = useMemo(() => topCreatorsByAvgRating(data, 'actor', 5), [data]);
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
@@ -72,6 +76,115 @@ const CreatorHub = ({ data }) => {
                 cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
               />
               <Bar dataKey="count" fill="#831010" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Paper>
+      </Box>
+
+      {/* New Creators & Rating Analysis */}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 16,
+          px: 2,
+          mb: 3,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(500px, 1fr))',
+          alignItems: 'stretch',
+        }}
+      >
+        {/* New Creators per Year */}
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            New Directors Entering Netflix (by Year)
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={newCreators.directors || []}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="year" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="newCreators"
+                stroke="#E50914"
+                strokeWidth={2}
+                dot={{ fill: '#E50914', r: 4 }}
+                name="New Directors"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </Paper>
+
+        {/* Top Directors by Avg Rating */}
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            <Star sx={{ verticalAlign: 'middle', mr: 1, color: '#FFD700' }} />
+            Top Directors by Avg Rating (Min 3 titles)
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={topDirectorsByRating.slice(0, 10)}
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 140, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis type="number" stroke="#fff" domain={[0, 6]} />
+              <YAxis dataKey="name" type="category" stroke="#fff" width={130} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                formatter={(value, name, props) => [
+                  `Avg Rating: ${value} (${props.payload.titles} titles)`,
+                  '',
+                ]}
+              />
+              <Bar dataKey="avgRating" fill="#FFD700" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Paper>
+      </Box>
+
+      {/* Top Actors by Rating */}
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            <Star sx={{ verticalAlign: 'middle', mr: 1, color: '#FFD700' }} />
+            Top Actors by Avg Rating (Min 5 titles)
+          </Typography>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              data={topActorsByRating.slice(0, 15)}
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 150, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis type="number" stroke="#fff" domain={[0, 6]} />
+              <YAxis dataKey="name" type="category" stroke="#fff" width={140} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                formatter={(value, name, props) => [
+                  `Avg Rating: ${value} (${props.payload.titles} titles)`,
+                  '',
+                ]}
+              />
+              <Bar dataKey="avgRating" fill="#831010" />
             </BarChart>
           </ResponsiveContainer>
         </Paper>

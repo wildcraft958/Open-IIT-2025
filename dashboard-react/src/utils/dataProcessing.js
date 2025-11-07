@@ -660,3 +660,120 @@ export const qualityReport = (data) => {
     withoutGenre: data.filter(d => !d.genres?.length).length,
   };
 };
+
+/**
+ * Additional utility functions for enhanced analytics
+ */
+
+export const computeFreshness = (data) => {
+  if (!data || data.length === 0) return { score: 0, category: 'Unknown' };
+
+  const now = new Date();
+  const recentThreshold = 365; // 1 year
+  const staleThreshold = 730; // 2 years
+
+  const contentAges = data
+    .filter(d => d.date_added)
+    .map(d => Math.floor((now - d.date_added) / (1000 * 60 * 60 * 24))); // Days since added
+
+  if (contentAges.length === 0) return { score: 0, category: 'Unknown' };
+
+  const recentCount = contentAges.filter(age => age <= recentThreshold).length;
+  const staleCount = contentAges.filter(age => age > staleThreshold).length;
+  const avgAge = _.mean(contentAges);
+
+  const freshnessScore = Math.round((recentCount / data.length) * 100);
+  
+  let category;
+  if (freshnessScore >= 30) category = 'Very Fresh';
+  else if (freshnessScore >= 20) category = 'Fresh';
+  else if (freshnessScore >= 10) category = 'Moderate';
+  else category = 'Stale';
+
+  return {
+    score: freshnessScore,
+    category,
+    avgDaysSinceAdded: Math.round(avgAge),
+    recentCount,
+    staleCount,
+    totalAnalyzed: contentAges.length,
+  };
+};
+
+export const computeDurationStats = (data) => {
+  if (!data || data.length === 0) return {};
+
+  const movies = data.filter(d => d.type === 'Movie' && d.duration && /min/.test(d.duration));
+  const tvShows = data.filter(d => d.type === 'TV Show' && d.duration && /season/i.test(d.duration));
+
+  const movieDurations = movies.map(m => {
+    const match = m.duration.match(/(\d+)\s*min/);
+    return match ? parseInt(match[1]) : null;
+  }).filter(Boolean);
+
+  const tvSeasons = tvShows.map(tv => {
+    const match = tv.duration.match(/(\d+)\s*season/i);
+    return match ? parseInt(match[1]) : null;
+  }).filter(Boolean);
+
+  return {
+    movies: {
+      count: movieDurations.length,
+      avg: Math.round(_.mean(movieDurations) || 0),
+      median: Math.round(movieDurations.length > 0 ? movieDurations.sort((a, b) => a - b)[Math.floor(movieDurations.length / 2)] : 0),
+      min: Math.min(...movieDurations, Infinity) === Infinity ? 0 : Math.min(...movieDurations),
+      max: Math.max(...movieDurations, -Infinity) === -Infinity ? 0 : Math.max(...movieDurations),
+    },
+    tvShows: {
+      count: tvSeasons.length,
+      avg: Math.round((_.mean(tvSeasons) || 0) * 10) / 10,
+      median: tvSeasons.length > 0 ? tvSeasons.sort((a, b) => a - b)[Math.floor(tvSeasons.length / 2)] : 0,
+      min: Math.min(...tvSeasons, Infinity) === Infinity ? 0 : Math.min(...tvSeasons),
+      max: Math.max(...tvSeasons, -Infinity) === -Infinity ? 0 : Math.max(...tvSeasons),
+    },
+  };
+};
+
+export const additionsByMonth = (data, months = 12) => {
+  if (!data || data.length === 0) return [];
+
+  const monthlyData = {};
+  data.forEach(item => {
+    if (item.date_added) {
+      const month = format(item.date_added, 'yyyy-MM');
+      monthlyData[month] = (monthlyData[month] || 0) + 1;
+    }
+  });
+
+  return Object.entries(monthlyData)
+    .map(([month, count]) => ({ month, count }))
+    .sort((a, b) => a.month.localeCompare(b.month))
+    .slice(-months);
+};
+
+export const calendarGrid = (data) => {
+  if (!data || data.length === 0) return [];
+
+  const dailyCounts = {};
+  data.forEach(item => {
+    if (item.date_added) {
+      const date = format(item.date_added, 'yyyy-MM-dd');
+      dailyCounts[date] = (dailyCounts[date] || 0) + 1;
+    }
+  });
+
+  return Object.entries(dailyCounts)
+    .map(([date, count]) => {
+      const [year, month, day] = date.split('-').map(Number);
+      return {
+        date,
+        year,
+        month,
+        day,
+        count,
+        weekday: new Date(date).getDay(),
+      };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(-365); // Last year
+};

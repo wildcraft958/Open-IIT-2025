@@ -10,6 +10,11 @@ import {
   MenuItem,
   InputLabel,
   Button,
+  Slider,
+  Chip,
+  OutlinedInput,
+  Checkbox,
+  ListItemText,
 } from '@mui/material';
 import {
   BarChart,
@@ -23,6 +28,17 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
 const ContentExplorer = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [contentType, setContentType] = useState('all');
@@ -30,6 +46,27 @@ const ContentExplorer = ({ data }) => {
   const [secondarySort, setSecondarySort] = useState('release_year');
   const [displayCount, setDisplayCount] = useState(10);
   const [exporting, setExporting] = useState(false);
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedCountries, setSelectedCountries] = useState([]);
+  const [yearRange, setYearRange] = useState([1950, 2025]);
+  const [visibleColumns, setVisibleColumns] = useState(['title', 'type', 'rating', 'release_year', 'genres']);
+
+  // Get unique genres and countries for multiselect
+  const allGenres = useMemo(() => {
+    const genres = new Set();
+    (data || []).forEach(item => {
+      (item.genres || []).forEach(g => genres.add(g));
+    });
+    return Array.from(genres).sort();
+  }, [data]);
+
+  const allCountries = useMemo(() => {
+    const countries = new Set();
+    (data || []).forEach(item => {
+      (item.countries || []).forEach(c => countries.add(c));
+    });
+    return Array.from(countries).sort();
+  }, [data]);
 
   const filteredData = useMemo(() => {
     let filtered = [...(data || [])];
@@ -43,6 +80,24 @@ const ContentExplorer = ({ data }) => {
       filtered = filtered.filter(d => 
         d.title?.toLowerCase().includes(term) ||
         d.genres?.some(g => g.toLowerCase().includes(term))
+      );
+    }
+
+    if (selectedGenres.length > 0) {
+      filtered = filtered.filter(d => 
+        d.genres?.some(g => selectedGenres.includes(g))
+      );
+    }
+
+    if (selectedCountries.length > 0) {
+      filtered = filtered.filter(d => 
+        d.countries?.some(c => selectedCountries.includes(c))
+      );
+    }
+
+    if (yearRange) {
+      filtered = filtered.filter(d => 
+        d.release_year >= yearRange[0] && d.release_year <= yearRange[1]
       );
     }
 
@@ -63,7 +118,7 @@ const ContentExplorer = ({ data }) => {
     });
 
     return filtered;
-  }, [data, searchTerm, contentType, sortBy, secondarySort]);
+  }, [data, searchTerm, contentType, sortBy, secondarySort, selectedGenres, selectedCountries, yearRange]);
 
   // Rating distribution
   const ratingDistribution = useMemo(() => {
@@ -158,12 +213,16 @@ const ContentExplorer = ({ data }) => {
       {/* Filters full width */}
       <Box sx={{ px: 2, mb: 3 }}>
         <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h6" gutterBottom sx={{ color: '#E50914', mb: 2 }}>
+            Filter & Search Controls
+          </Typography>
           <Box
             sx={{
               display: 'grid',
               gap: 16,
               gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
               alignItems: 'stretch',
+              mb: 3,
             }}
           >
             <TextField
@@ -178,6 +237,55 @@ const ContentExplorer = ({ data }) => {
                 <MenuItem value="all">All Content</MenuItem>
                 <MenuItem value="Movie">Movies</MenuItem>
                 <MenuItem value="TV Show">TV Shows</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl>
+              <InputLabel>Genres (Multi-select)</InputLabel>
+              <Select
+                multiple
+                value={selectedGenres}
+                onChange={(e) => setSelectedGenres(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value)}
+                input={<OutlinedInput label="Genres (Multi-select)" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} size="small" sx={{ backgroundColor: '#E50914', color: '#fff' }} />
+                    ))}
+                  </Box>
+                )}
+                MenuProps={MenuProps}
+              >
+                {allGenres.map((genre) => (
+                  <MenuItem key={genre} value={genre}>
+                    <Checkbox checked={selectedGenres.indexOf(genre) > -1} />
+                    <ListItemText primary={genre} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <InputLabel>Countries (Multi-select)</InputLabel>
+              <Select
+                multiple
+                value={selectedCountries}
+                onChange={(e) => setSelectedCountries(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value)}
+                input={<OutlinedInput label="Countries (Multi-select)" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.slice(0, 2).map((value) => (
+                      <Chip key={value} label={value} size="small" sx={{ backgroundColor: '#831010', color: '#fff' }} />
+                    ))}
+                    {selected.length > 2 && <Chip label={`+${selected.length - 2}`} size="small" />}
+                  </Box>
+                )}
+                MenuProps={MenuProps}
+              >
+                {allCountries.slice(0, 50).map((country) => (
+                  <MenuItem key={country} value={country}>
+                    <Checkbox checked={selectedCountries.indexOf(country) > -1} />
+                    <ListItemText primary={country} />
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             <FormControl>
@@ -196,21 +304,90 @@ const ContentExplorer = ({ data }) => {
                 <MenuItem value="rating">Rating</MenuItem>
               </Select>
             </FormControl>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography variant="caption" sx={{ color: '#888' }}>
-                Found: {filteredData.length} titles
-              </Typography>
+          </Box>
+
+          {/* Year Range Slider */}
+          <Box sx={{ mb: 3, px: 2 }}>
+            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>
+              Release Year Range: {yearRange[0]} - {yearRange[1]}
+            </Typography>
+            <Slider
+              value={yearRange}
+              onChange={(e, newValue) => setYearRange(newValue)}
+              valueLabelDisplay="auto"
+              min={1950}
+              max={2025}
+              sx={{
+                color: '#E50914',
+                '& .MuiSlider-thumb': {
+                  backgroundColor: '#E50914',
+                },
+                '& .MuiSlider-track': {
+                  backgroundColor: '#E50914',
+                },
+                '& .MuiSlider-rail': {
+                  backgroundColor: '#666',
+                },
+              }}
+            />
+          </Box>
+
+          {/* Column Toggles */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" sx={{ color: '#999', mb: 1 }}>
+              Visible Columns:
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {['title', 'type', 'rating', 'release_year', 'genres', 'countries', 'duration'].map((col) => (
+                <Chip
+                  key={col}
+                  label={col.replace('_', ' ').toUpperCase()}
+                  onClick={() => {
+                    if (visibleColumns.includes(col)) {
+                      setVisibleColumns(visibleColumns.filter(c => c !== col));
+                    } else {
+                      setVisibleColumns([...visibleColumns, col]);
+                    }
+                  }}
+                  color={visibleColumns.includes(col) ? 'primary' : 'default'}
+                  sx={{
+                    backgroundColor: visibleColumns.includes(col) ? '#E50914' : '#2a2a2a',
+                    color: '#fff',
+                    '&:hover': {
+                      backgroundColor: visibleColumns.includes(col) ? '#c20710' : '#3a3a3a',
+                    },
+                  }}
+                />
+              ))}
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Button
-                variant="outlined"
-                disabled={exporting || filteredData.length === 0}
-                onClick={handleExport}
-                sx={{ color: '#ffffffff', borderColor: '#E50914', textTransform: 'none' }}
-              >
-                {exporting ? 'Exporting…' : 'Export CSV'}
-              </Button>
-            </Box>
+          </Box>
+
+          {/* Action Buttons */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="body2" sx={{ color: '#888' }}>
+              Found: <strong style={{ color: '#E50914' }}>{filteredData.length}</strong> titles
+            </Typography>
+            <Button
+              variant="outlined"
+              disabled={exporting || filteredData.length === 0}
+              onClick={handleExport}
+              sx={{ color: '#fff', borderColor: '#E50914', textTransform: 'none' }}
+            >
+              {exporting ? 'Exporting…' : 'Export CSV'}
+            </Button>
+            <Button
+              variant="text"
+              onClick={() => {
+                setSearchTerm('');
+                setContentType('all');
+                setSelectedGenres([]);
+                setSelectedCountries([]);
+                setYearRange([1950, 2025]);
+              }}
+              sx={{ color: '#999', textTransform: 'none' }}
+            >
+              Reset Filters
+            </Button>
           </Box>
         </Paper>
       </Box>
@@ -282,23 +459,29 @@ const ContentExplorer = ({ data }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #333' }}>
-                <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Title</th>
-                <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Type</th>
-                <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Rating</th>
-                <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Release Year</th>
-                <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Genres</th>
+                {visibleColumns.includes('title') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Title</th>}
+                {visibleColumns.includes('type') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Type</th>}
+                {visibleColumns.includes('rating') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Rating</th>}
+                {visibleColumns.includes('release_year') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Release Year</th>}
+                {visibleColumns.includes('genres') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Genres</th>}
+                {visibleColumns.includes('countries') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Countries</th>}
+                {visibleColumns.includes('duration') && <th style={{ textAlign: 'left', padding: '12px', color: '#E50914' }}>Duration</th>}
               </tr>
             </thead>
             <tbody>
               {filteredData.slice(0, displayCount).map((item, index) => (
                 <tr key={index} style={{ borderBottom: '1px solid #333' }}>
-                  <td style={{ padding: '12px', color: '#fff' }}>{item.title}</td>
-                  <td style={{ padding: '12px', color: '#ccc' }}>{item.type}</td>
-                  <td style={{ padding: '12px', color: '#ccc' }}>{item.rating || 'N/A'}</td>
-                  <td style={{ padding: '12px', color: '#ccc' }}>{item.release_year || 'N/A'}</td>
-                  <td style={{ padding: '12px', color: '#ccc' }}>
+                  {visibleColumns.includes('title') && <td style={{ padding: '12px', color: '#fff' }}>{item.title}</td>}
+                  {visibleColumns.includes('type') && <td style={{ padding: '12px', color: '#ccc' }}>{item.type}</td>}
+                  {visibleColumns.includes('rating') && <td style={{ padding: '12px', color: '#ccc' }}>{item.rating || 'N/A'}</td>}
+                  {visibleColumns.includes('release_year') && <td style={{ padding: '12px', color: '#ccc' }}>{item.release_year || 'N/A'}</td>}
+                  {visibleColumns.includes('genres') && <td style={{ padding: '12px', color: '#ccc' }}>
                     {item.genres?.slice(0, 2).join(', ') || 'N/A'}
-                  </td>
+                  </td>}
+                  {visibleColumns.includes('countries') && <td style={{ padding: '12px', color: '#ccc' }}>
+                    {item.countries?.slice(0, 2).join(', ') || 'N/A'}
+                  </td>}
+                  {visibleColumns.includes('duration') && <td style={{ padding: '12px', color: '#ccc' }}>{item.duration || 'N/A'}</td>}
                 </tr>
               ))}
             </tbody>

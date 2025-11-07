@@ -11,12 +11,17 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ScatterChart,
+  Scatter,
+  Cell,
 } from 'recharts';
-import { getYear } from 'date-fns';
-import { processTrendData } from '../utils/dataProcessing';
+import { getYear, getMonth } from 'date-fns';
+import { processTrendData, calendarGrid, ageByAddedYear } from '../utils/dataProcessing';
 
 const TrendIntelligence = ({ data }) => {
   const trendData = useMemo(() => processTrendData(data), [data]);
+  const calendarData = useMemo(() => calendarGrid(data), [data]);
+  const cohortData = useMemo(() => ageByAddedYear(data), [data]);
 
   // Timeline data - group by year
   const yearlyTimeline = useMemo(() => {
@@ -37,6 +42,15 @@ const TrendIntelligence = ({ data }) => {
       }))
       .sort((a, b) => a.year - b.year);
   }, [data]);
+
+  // Calendar heatmap color scale
+  const getHeatColor = (count) => {
+    if (count === 0) return '#1a1a1a';
+    if (count < 5) return '#4a0000';
+    if (count < 10) return '#850000';
+    if (count < 20) return '#c20000';
+    return '#E50914';
+  };
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
@@ -130,6 +144,89 @@ const TrendIntelligence = ({ data }) => {
                 />
               </LineChart>
             </ResponsiveContainer>
+        </Paper>
+      </Box>
+
+      {/* Calendar Heatmap */}
+      <Box sx={{ width: '100%', mb: 3, px: 2 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Daily Addition Calendar (Last Year)
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#999', mb: 2, display: 'block' }}>
+            Darker colors indicate more content added on that day
+          </Typography>
+          <Box sx={{ overflowX: 'auto', mt: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(53, 14px)', gap: '2px', minWidth: '800px' }}>
+              {calendarData.slice(0, 365).map((day, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    width: 14,
+                    height: 14,
+                    backgroundColor: getHeatColor(day.count),
+                    borderRadius: '2px',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      outline: '2px solid #E50914',
+                    },
+                  }}
+                  title={`${day.date}: ${day.count} titles`}
+                />
+              ))}
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+
+      {/* Cohort Heatmap - Age by Added Year */}
+      <Box sx={{ width: '100%', mb: 3, px: 2 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Content Age Cohort Analysis
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#999', mb: 2, display: 'block' }}>
+            Average age of content when added to Netflix by year
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={cohortData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="year" stroke="#fff" />
+              <YAxis stroke="#fff" label={{ value: 'Years Old', angle: -90, position: 'insideLeft', fill: '#fff' }} />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                }}
+                formatter={(value) => [`${value} years`, '']}
+              />
+              <Legend />
+              <Area
+                type="monotone"
+                dataKey="avgAge"
+                stroke="#E50914"
+                fill="url(#cohortGradient)"
+                strokeWidth={2}
+                name="Avg Content Age"
+              />
+              <Area
+                type="monotone"
+                dataKey="maxAge"
+                stroke="#831010"
+                fill="transparent"
+                strokeWidth={1}
+                strokeDasharray="5 5"
+                name="Max Age"
+              />
+              <defs>
+                <linearGradient id="cohortGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#E50914" stopOpacity={0.8} />
+                  <stop offset="100%" stopColor="#E50914" stopOpacity={0.1} />
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          </ResponsiveContainer>
         </Paper>
       </Box>
 
