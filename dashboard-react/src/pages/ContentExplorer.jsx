@@ -206,7 +206,7 @@ const ContentExplorer = ({ data }) => {
                 variant="outlined"
                 disabled={exporting || filteredData.length === 0}
                 onClick={handleExport}
-                sx={{ color: '#E50914', borderColor: '#E50914', textTransform: 'none' }}
+                sx={{ color: '#ffffffff', borderColor: '#E50914', textTransform: 'none' }}
               >
                 {exporting ? 'Exporting…' : 'Export CSV'}
               </Button>

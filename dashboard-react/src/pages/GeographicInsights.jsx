@@ -112,17 +112,22 @@ const GeographicInsights = ({ data }) => {
       {/* Interactive World Map (Choropleth) */}
       <Box sx={{ px: 2, mb: 6 }}>
         <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', width: '100%' }}>
-          <Typography variant="h5" gutterBottom>
-            Interactive World Map
+          <Typography variant="h5" gutterBottom sx={{ color: '#E50914' }}>
+            Global Production Footprint
           </Typography>
-          <Box sx={{ position: 'relative', width: '100%', height: { xs: 420, md: 560 }, borderRadius: 1, overflow: 'hidden', border: '1px solid #333' }}>
+          <Typography variant="body2" sx={{ mb: 2, color: '#bbb' }}>
+            Choropleth highlights breadth of Netflix catalog production origins. Darker red indicates higher title count.
+          </Typography>
+          <Box sx={{ position: 'relative', width: '100%', height: { xs: 420, md: 560 }, borderRadius: 1, overflow: 'hidden', border: '1px solid #333', mb: 4 }}>
             <iframe
-              title="World Choropleth"
+              title="World Production Choropleth"
               src="/world_choropleth.html"
-              style={{ width: '100%', height: '100%', border: '0' }}
+              style={{ width: '100%', height: '100%', border: 0 }}
               loading="lazy"
+              aria-label="Interactive world map indicating number of titles produced per country"
             />
           </Box>
+          {/* Removed redundant external Plotly embed; Recharts bar above already shows top countries */}
         </Paper>
       </Box>
     </Box>
