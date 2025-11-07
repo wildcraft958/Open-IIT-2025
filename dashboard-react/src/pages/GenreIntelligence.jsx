@@ -11,6 +11,7 @@ import {
   AreaChart,
   Area,
   Legend,
+  Cell,
 } from 'recharts';
 import { TrendingUp, TrendingDown } from '@mui/icons-material';
 import { processGenreData, genreMomentum, coOccurrenceMatrix, genreOverTime } from '../utils/dataProcessing';
