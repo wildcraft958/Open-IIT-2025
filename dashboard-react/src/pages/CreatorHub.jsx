@@ -36,7 +36,15 @@ const CreatorHub = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis type="number" stroke="#fff" />
               <YAxis dataKey="name" type="category" stroke="#fff" width={160} />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
+              />
               <Bar dataKey="count" fill="#E50914" />
             </BarChart>
           </ResponsiveContainer>
@@ -54,7 +62,15 @@ const CreatorHub = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis type="number" stroke="#fff" />
               <YAxis dataKey="name" type="category" stroke="#fff" width={160} />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
+              />
               <Bar dataKey="count" fill="#831010" />
             </BarChart>
           </ResponsiveContainer>

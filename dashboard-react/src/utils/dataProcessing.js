@@ -1,4 +1,4 @@
-import { format, getYear, getMonth, subMonths } from 'date-fns';
+import { format, getYear } from 'date-fns';
 import _ from 'lodash';
 
 export const processExecutiveMetrics = (data) => {
@@ -7,21 +7,6 @@ export const processExecutiveMetrics = (data) => {
   const totalTitles = data.length;
   const uniqueCountries = new Set(data.flatMap(d => d.countries || []));
   const uniqueGenres = new Set(data.flatMap(d => d.genres || []));
-  
-  // Helpers to parse duration fields
-  const parseMinutes = (val) => {
-    if (!val) return null;
-    const s = String(val).toLowerCase();
-    const m = s.match(/(\d+)\s*min/);
-    return m ? parseInt(m[1], 10) : null;
-  };
-
-  const parseSeasons = (val) => {
-    if (!val) return null;
-    const s = String(val).toLowerCase();
-    const m = s.match(/(\d+)\s*season/); // matches '1 Season' or '3 Seasons'
-    return m ? parseInt(m[1], 10) : null;
-  };
   
   // Content type distribution
   const contentTypeCounts = _.countBy(data, 'type');
@@ -40,21 +25,6 @@ export const processExecutiveMetrics = (data) => {
       titles: items.length,
     }))
     .sort((a, b) => a.year - b.year);
-
-  // Recent additions (last 12 months) sparkline
-  const now = new Date();
-  const last12Months = Array.from({ length: 12 }).map((_, idx) => {
-    const d = subMonths(now, 11 - idx);
-    return format(d, 'yyyy-MM');
-  });
-  const monthlyAdditionsMap = _.countBy(
-    data.filter(d => d.date_added).map(d => format(d.date_added, 'yyyy-MM'))
-  );
-  const recentMonthlyAdditions = last12Months.map(key => ({
-    month: key,
-    titles: monthlyAdditionsMap[key] || 0,
-  }));
-  const addedLast12Months = recentMonthlyAdditions.reduce((acc, d) => acc + d.titles, 0);
 
   // Top genres
   const genreCounts = {};
@@ -77,20 +47,6 @@ export const processExecutiveMetrics = (data) => {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 8);
-
-  // Runtime and seasons stats
-  const movieMinutes = data
-    .filter(d => d.type === 'Movie')
-    .map(d => parseMinutes(d.duration))
-    .filter(v => typeof v === 'number' && v > 0);
-  const tvSeasons = data
-    .filter(d => d.type === 'TV Show')
-    .map(d => parseSeasons(d.duration))
-    .filter(v => typeof v === 'number' && v > 0);
-  const avgMovieRuntime = movieMinutes.length ? Math.round(_.mean(movieMinutes)) : null;
-  const medianMovieRuntime = movieMinutes.length ? _.sortBy(movieMinutes)[Math.floor(movieMinutes.length / 2)] : null;
-  const avgTvSeasons = tvSeasons.length ? Math.round(_.mean(tvSeasons) * 10) / 10 : null;
-  const medianTvSeasons = tvSeasons.length ? _.sortBy(tvSeasons)[Math.floor(tvSeasons.length / 2)] : null;
 
   // Key insights
   const keyInsights = [
@@ -123,13 +79,7 @@ export const processExecutiveMetrics = (data) => {
     avgContentAge: mostCommonRating,
     contentTypeDistribution,
     growthOverTime,
-    recentMonthlyAdditions,
-    addedLast12Months,
     ratingMix,
-    avgMovieRuntime,
-    medianMovieRuntime,
-    avgTvSeasons,
-    medianTvSeasons,
     topGenres,
     keyInsights,
     ratingDistribution: ratingCounts,
@@ -350,5 +300,363 @@ export const processCreatorData = (data) => {
   return {
     topDirectors,
     topActors,
+  };
+};
+
+/**
+ * Comprehensive breakdown functions for advanced analytics
+ */
+
+export const additionsByReleaseDecade = (data) => {
+  if (!data || data.length === 0) return [];
+
+  const decadeCounts = {};
+  data.forEach(item => {
+    if (item.release_year) {
+      const decade = Math.floor(item.release_year / 10) * 10;
+      decadeCounts[decade] = (decadeCounts[decade] || 0) + 1;
+    }
+  });
+
+  return Object.entries(decadeCounts)
+    .map(([decade, count]) => ({
+      decade: `${decade}s`,
+      count,
+      label: `${decade}–${decade + 9}`,
+    }))
+    .sort((a, b) => parseInt(a.decade) - parseInt(b.decade));
+};
+
+export const ageByAddedYear = (data) => {
+  if (!data || data.length === 0) return [];
+
+  const ageByYear = {};
+  data.forEach(item => {
+    if (item.date_added && item.release_year) {
+      const yearAdded = getYear(item.date_added);
+      if (!ageByYear[yearAdded]) ageByYear[yearAdded] = [];
+      const age = yearAdded - item.release_year;
+      ageByYear[yearAdded].push(Math.max(0, age));
+    }
+  });
+
+  return Object.entries(ageByYear)
+    .map(([year, ages]) => ({
+      year: parseInt(year),
+      avgAge: Math.round(_.mean(ages) * 10) / 10,
+      maxAge: Math.max(...ages),
+      minAge: Math.min(...ages),
+    }))
+    .sort((a, b) => a.year - b.year)
+    .slice(-15); // Last 15 years
+};
+
+export const regionalDistributionWithDeltas = (data) => {
+  if (!data || data.length === 0) return {};
+
+  const regions = {
+    'North America': ['United States', 'Canada', 'Mexico'],
+    'Europe': ['United Kingdom', 'France', 'Germany', 'Spain', 'Italy', 'Netherlands', 'Sweden', 'Belgium', 'Poland', 'Portugal'],
+    'Asia': ['India', 'Japan', 'South Korea', 'China', 'Thailand', 'Philippines', 'Taiwan', 'Indonesia', 'Vietnam'],
+    'Latin America': ['Brazil', 'Argentina', 'Colombia', 'Chile', 'Peru', 'Mexico', 'Venezuela'],
+    'Middle East & Africa': ['Nigeria', 'Egypt', 'South Africa', 'Israel', 'United Arab Emirates'],
+    'Oceania': ['Australia', 'New Zealand'],
+  };
+
+  const regionCounts = {};
+  const regionYearly = {};
+  
+  data.forEach(item => {
+    const year = item.date_added ? getYear(item.date_added) : null;
+    (item.countries || []).forEach(country => {
+      let assigned = false;
+      for (const [region, countries] of Object.entries(regions)) {
+        if (countries.includes(country)) {
+          regionCounts[region] = (regionCounts[region] || 0) + 1;
+          if (year) {
+            if (!regionYearly[year]) regionYearly[year] = {};
+            regionYearly[year][region] = (regionYearly[year][region] || 0) + 1;
+          }
+          assigned = true;
+          break;
+        }
+      }
+      if (!assigned) {
+        regionCounts['Others'] = (regionCounts['Others'] || 0) + 1;
+        if (year) {
+          if (!regionYearly[year]) regionYearly[year] = {};
+          regionYearly[year]['Others'] = (regionYearly[year]['Others'] || 0) + 1;
+        }
+      }
+    });
+  });
+
+  const regionList = Object.entries(regionCounts)
+    .map(([region, count]) => ({ region, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return { regionList, regionYearly };
+};
+
+export const countryGenreMatrix = (data, topCountries = 15, topGenres = 15) => {
+  if (!data || data.length === 0) return [];
+
+  const countryCounts = {};
+  const genreCounts = {};
+  const matrix = {};
+
+  data.forEach(item => {
+    (item.countries || []).forEach(country => {
+      countryCounts[country] = (countryCounts[country] || 0) + 1;
+      (item.genres || []).forEach(genre => {
+        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+        const key = `${country}|${genre}`;
+        matrix[key] = (matrix[key] || 0) + 1;
+      });
+    });
+  });
+
+  const topCountriesList = Object.keys(countryCounts)
+    .sort((a, b) => countryCounts[b] - countryCounts[a])
+    .slice(0, topCountries);
+  
+  const topGenresList = Object.keys(genreCounts)
+    .sort((a, b) => genreCounts[b] - genreCounts[a])
+    .slice(0, topGenres);
+
+  const result = topCountriesList.map(country => {
+    const row = { country };
+    topGenresList.forEach(genre => {
+      row[genre] = matrix[`${country}|${genre}`] || 0;
+    });
+    return row;
+  });
+
+  return result;
+};
+
+export const genreMomentum = (data, window = 24) => {
+  if (!data || data.length === 0) return [];
+
+  const genreByMonth = {};
+
+  data.forEach(item => {
+    if (item.date_added) {
+      const month = format(item.date_added, 'yyyy-MM');
+      if (!genreByMonth[month]) genreByMonth[month] = {};
+      (item.genres || []).forEach(genre => {
+        genreByMonth[month][genre] = (genreByMonth[month][genre] || 0) + 1;
+      });
+    }
+  });
+
+  const months = Object.keys(genreByMonth).sort().slice(-window);
+  const allGenres = new Set();
+  months.forEach(m => {
+    Object.keys(genreByMonth[m] || {}).forEach(g => allGenres.add(g));
+  });
+
+  const genreList = Array.from(allGenres);
+  const momentum = {};
+
+  genreList.forEach(genre => {
+    const recent = months.slice(-6).reduce((sum, m) => sum + (genreByMonth[m]?.[genre] || 0), 0);
+    const previous = months.slice(-12, -6).reduce((sum, m) => sum + (genreByMonth[m]?.[genre] || 0), 0);
+    const delta = previous > 0 ? ((recent - previous) / previous * 100) : 0;
+    momentum[genre] = { recent, previous, delta };
+  });
+
+  return Object.entries(momentum)
+    .map(([genre, { recent, previous, delta }]) => ({ genre, recent, previous, delta: Math.round(delta) }))
+    .sort((a, b) => b.delta - a.delta)
+    .slice(0, 15);
+};
+
+export const coOccurrenceMatrix = (data, top = 20) => {
+  if (!data || data.length === 0) return [];
+
+  const coOccurrence = {};
+  const genreCounts = {};
+
+  data.forEach(item => {
+    const genres = item.genres || [];
+    genres.forEach(g => {
+      genreCounts[g] = (genreCounts[g] || 0) + 1;
+    });
+    genres.forEach((g1, i) => {
+      genres.forEach((g2, j) => {
+        if (i < j) {
+          const key = [g1, g2].sort().join(' & ');
+          coOccurrence[key] = (coOccurrence[key] || 0) + 1;
+        }
+      });
+    });
+  });
+
+  return Object.entries(coOccurrence)
+    .map(([pair, count]) => {
+      const [g1, g2] = pair.split(' & ');
+      return {
+        pair,
+        g1,
+        g2,
+        count,
+        weight: Math.min(100, Math.max(5, (count / 50) * 100)), // Normalized for visualization
+      };
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, top);
+};
+
+export const genreOverTime = (data, top = 10) => {
+  if (!data || data.length === 0) return [];
+
+  const genreByYear = {};
+  data.forEach(item => {
+    if (item.date_added) {
+      const year = getYear(item.date_added);
+      if (!genreByYear[year]) genreByYear[year] = {};
+      (item.genres || []).forEach(genre => {
+        genreByYear[year][genre] = (genreByYear[year][genre] || 0) + 1;
+      });
+    }
+  });
+
+  const genreCounts = {};
+  Object.values(genreByYear).forEach(yearGenres => {
+    Object.keys(yearGenres).forEach(genre => {
+      genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+    });
+  });
+
+  const topGenres = Object.keys(genreCounts)
+    .sort((a, b) => genreCounts[b] - genreCounts[a])
+    .slice(0, top);
+
+  const years = Object.keys(genreByYear).sort().map(Number);
+  const result = years.map(year => {
+    const row = { year };
+    topGenres.forEach(genre => {
+      row[genre] = genreByYear[year]?.[genre] || 0;
+    });
+    return row;
+  });
+
+  return result;
+};
+
+export const newCreatorsByYear = (data) => {
+  if (!data || data.length === 0) return { directors: [], actors: [] };
+
+  const directorFirstYear = {};
+  const actorFirstYear = {};
+
+  data.forEach(item => {
+    const year = item.date_added ? getYear(item.date_added) : item.release_year;
+    if (year) {
+      (item.directors || []).forEach(director => {
+        if (director && director !== 'Not Given') {
+          if (!directorFirstYear[director]) directorFirstYear[director] = year;
+        }
+      });
+      (item.cast || []).forEach(actor => {
+        if (actor) {
+          if (!actorFirstYear[actor]) actorFirstYear[actor] = year;
+        }
+      });
+    }
+  });
+
+  const directorsByYear = _.countBy(Object.values(directorFirstYear));
+  const actorsByYear = _.countBy(Object.values(actorFirstYear));
+
+  const directors = Object.entries(directorsByYear)
+    .map(([year, count]) => ({ year: parseInt(year), newCreators: count }))
+    .sort((a, b) => a.year - b.year);
+
+  const actors = Object.entries(actorsByYear)
+    .map(([year, count]) => ({ year: parseInt(year), newCreators: count }))
+    .sort((a, b) => a.year - b.year);
+
+  return { directors, actors };
+};
+
+export const topCreatorsByAvgRating = (data, role = 'director', minTitles = 3) => {
+  if (!data || data.length === 0) return [];
+
+  const ratingMap = {
+    'G': 1, 'TV-Y': 1, 'TV-Y7': 2,
+    'PG': 3, 'TV-G': 3,
+    'PG-13': 4, 'TV-PG': 4,
+    'R': 5, 'TV-14': 5,
+    'NC-17': 6, 'TV-MA': 6,
+  };
+
+  const creatorTitles = {};
+  const creatorRatings = {};
+
+  if (role === 'director') {
+    data.forEach(item => {
+      (item.directors || []).forEach(director => {
+        if (director && director !== 'Not Given') {
+          creatorTitles[director] = (creatorTitles[director] || 0) + 1;
+          creatorRatings[director] = creatorRatings[director] || [];
+          creatorRatings[director].push(ratingMap[item.rating] || 3);
+        }
+      });
+    });
+  } else if (role === 'actor') {
+    data.forEach(item => {
+      (item.cast || []).forEach(actor => {
+        if (actor) {
+          creatorTitles[actor] = (creatorTitles[actor] || 0) + 1;
+          creatorRatings[actor] = creatorRatings[actor] || [];
+          creatorRatings[actor].push(ratingMap[item.rating] || 3);
+        }
+      });
+    });
+  }
+
+  return Object.entries(creatorTitles)
+    .filter(([, count]) => count >= minTitles)
+    .map(([name, count]) => ({
+      name,
+      titles: count,
+      avgRating: Math.round(_.mean(creatorRatings[name]) * 10) / 10,
+    }))
+    .sort((a, b) => b.avgRating - a.avgRating)
+    .slice(0, 15);
+};
+
+export const qualityReport = (data) => {
+  if (!data || data.length === 0) return {};
+
+  const movies = data.filter(d => d.type === 'Movie');
+  const tvShows = data.filter(d => d.type === 'TV Show');
+
+  const countComplete = (items) => items.filter(d => d.title && d.rating && d.release_year && d.countries?.length > 0 && d.genres?.length > 0).length;
+
+  const moviesWithDuration = movies.filter(d => d.duration && /min/.test(d.duration)).length;
+  const tvWithSeasons = tvShows.filter(d => d.duration && /season/.test(d.duration)).length;
+
+  const ratingDistribution = _.countBy(data, 'rating');
+  const topRatings = Object.entries(ratingDistribution)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([rating, count]) => ({ rating, count, pct: Math.round((count / data.length) * 100) }));
+
+  return {
+    total: data.length,
+    movies: movies.length,
+    tvShows: tvShows.length,
+    completeRecords: countComplete(data),
+    completeness: Math.round((countComplete(data) / data.length) * 100),
+    moviesWithRuntime: moviesWithDuration,
+    tvWithSeasons: tvWithSeasons,
+    avgReleaseYear: Math.round(_.mean(data.map(d => d.release_year).filter(Boolean))),
+    topRatings,
+    withoutRating: data.filter(d => !d.rating).length,
+    withoutCountry: data.filter(d => !d.countries?.length).length,
+    withoutGenre: data.filter(d => !d.genres?.length).length,
   };
 };

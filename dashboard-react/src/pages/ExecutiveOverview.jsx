@@ -85,20 +85,6 @@ const ExecutiveOverview = ({ data }) => {
           description="Content Rating"
           color="#FF0000"
         />
-        <KPICard
-          title="Freshness (12m)"
-          value={`${metrics.addedLast12Months || 0}`}
-          change={`${(((metrics.addedLast12Months || 0) / (metrics.totalTitles || 1)) * 100).toFixed(1)}% of catalog`}
-          description="Titles added last 12 months"
-          color="#E50914"
-        />
-        <KPICard
-          title="Avg Runtime / Seasons"
-          value={`${metrics.avgMovieRuntime ? metrics.avgMovieRuntime + 'm' : '–'} / ${metrics.avgTvSeasons ? metrics.avgTvSeasons : '–'}`}
-          change={`Median ${metrics.medianMovieRuntime ? metrics.medianMovieRuntime + 'm' : '–'} / ${metrics.medianTvSeasons ? metrics.medianTvSeasons : '–'}`}
-          description="Movies / TV Shows"
-          color="#831010"
-        />
       </Box>
 
       {/* Activity Sparkline & Rating Mix */}
@@ -131,51 +117,6 @@ const ExecutiveOverview = ({ data }) => {
               letterSpacing: '-0.3px',
             }}
           >
-            Recent Additions (12 Months)
-          </Typography>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={metrics.recentMonthlyAdditions || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
-              <XAxis dataKey="month" stroke="#b3b3b3" style={{ fontSize: '12px' }} />
-              <YAxis stroke="#b3b3b3" style={{ fontSize: '12px' }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1e1e1e',
-                  border: '1px solid #E50914',
-                  borderRadius: '8px',
-                  color: '#fff',
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="titles"
-                stroke="#E50914"
-                strokeWidth={3}
-                dot={{ r: 4, fill: '#E50914', stroke: '#fff', strokeWidth: 1 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </Paper>
-        <Paper
-          sx={{
-            p: 3,
-            background: 'linear-gradient(145deg, #1e1e1e, #252525)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            height: '100%',
-          }}
-        >
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{
-              color: '#ffffff',
-              fontWeight: 600,
-              fontSize: '1.25rem',
-              mb: 3,
-              letterSpacing: '-0.3px',
-            }}
-          >
             Rating Mix
           </Typography>
           <ResponsiveContainer width="100%" height={220}>
@@ -189,6 +130,7 @@ const ExecutiveOverview = ({ data }) => {
                 paddingAngle={3}
                 dataKey="value"
                 stroke="none"
+                label={(entry) => entry.name}
               >
                 {(metrics.ratingMix || []).map((entry, index) => (
                   <Cell key={`rm-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -200,6 +142,13 @@ const ExecutiveOverview = ({ data }) => {
                   border: '1px solid #E50914',
                   borderRadius: '8px',
                   color: '#fff',
+                }}
+              />
+              <Legend
+                wrapperStyle={{
+                  paddingTop: '20px',
+                  fontSize: '13px',
+                  fontWeight: 500,
                 }}
               />
             </PieChart>

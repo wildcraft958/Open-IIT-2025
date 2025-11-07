@@ -31,7 +31,15 @@ const GenreIntelligence = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis dataKey="genre" angle={-45} textAnchor="end" height={100} stroke="#fff" />
               <YAxis stroke="#fff" />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
+              />
               <Bar dataKey="count" fill="#E50914" />
             </BarChart>
           </ResponsiveContainer>
@@ -49,7 +57,15 @@ const GenreIntelligence = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis type="number" stroke="#fff" />
               <YAxis dataKey="pair" type="category" stroke="#fff" width={210} />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
+              />
               <Bar dataKey="count" fill="#831010" />
             </BarChart>
           </ResponsiveContainer>

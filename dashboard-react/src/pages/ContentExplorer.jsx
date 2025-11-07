@@ -235,7 +235,15 @@ const ContentExplorer = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis dataKey="type" stroke="#fff" />
               <YAxis stroke="#fff" />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
+              />
               <Bar dataKey="count" fill="#E50914" />
             </BarChart>
           </ResponsiveContainer>
@@ -249,7 +257,15 @@ const ContentExplorer = ({ data }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis dataKey="rating" stroke="#fff" />
               <YAxis stroke="#fff" />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e1e1e',
+                  border: '1px solid #E50914',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                cursor={{ fill: 'rgba(229, 9, 20, 0.1)' }}
+              />
               <Bar dataKey="count" fill="#831010" />
             </BarChart>
           </ResponsiveContainer>
