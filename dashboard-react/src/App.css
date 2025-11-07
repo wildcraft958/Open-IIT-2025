@@ -18,14 +18,17 @@ body {
   color: #ffffff;
   width: 100%;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .content {
-  padding: 32px 48px;
-  max-width: 100%;
+  padding: 16px;
+  max-width: none !important;
   width: 100%;
   margin: 0;
   box-sizing: border-box;
+  flex: 1;
 }
 
 /* Modern color palette */
@@ -197,7 +200,7 @@ button:active {
 /* Responsive design */
 @media (max-width: 1600px) {
   .content {
-    padding: 28px 40px;
+    padding: 16px;
   }
 }
 
@@ -207,7 +210,7 @@ button:active {
   }
   
   .content {
-    padding: 24px 32px;
+    padding: 16px;
   }
 }
 
@@ -217,7 +220,7 @@ button:active {
   }
   
   .content {
-    padding: 16px 20px;
+    padding: 12px;
   }
   
   .card {

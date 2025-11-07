@@ -39,78 +39,80 @@ const TrendIntelligence = ({ data }) => {
   }, [data]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 4 }}>
+    <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
+      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
         Trend Intelligence
       </Typography>
 
-      {/* Content Addition Timeline */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
-            <Typography variant="h5" gutterBottom>
-              Yearly Content Addition Timeline
-            </Typography>
-            <ResponsiveContainer width="100%" height={400}>
-              <AreaChart data={yearlyTimeline}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="year" stroke="#fff" />
-                <YAxis stroke="#fff" />
-                <Tooltip />
-                <Legend />
-                <Area
-                  type="monotone"
-                  dataKey="movies"
-                  stackId="1"
-                  stroke="#E50914"
-                  fill="#E50914"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="tvShows"
-                  stackId="1"
-                  stroke="#831010"
-                  fill="#831010"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+      {/* Timeline Full Width */}
+      <Box sx={{ width: '100%', mb: 3, px: 2 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Yearly Content Addition Timeline
+          </Typography>
+          <ResponsiveContainer width="100%" height={420}>
+            <AreaChart data={yearlyTimeline}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="year" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Legend />
+              <Area
+                type="monotone"
+                dataKey="movies"
+                stackId="1"
+                stroke="#E50914"
+                fill="#E50914"
+              />
+              <Area
+                type="monotone"
+                dataKey="tvShows"
+                stackId="1"
+                stroke="#831010"
+                fill="#831010"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </Paper>
+      </Box>
 
-      {/* Content Age at Addition */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
-            <Typography variant="h5" gutterBottom>
-              Content Age Analysis
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendData.contentAge || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="year" stroke="#fff" />
-                <YAxis stroke="#fff" />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="avgAge"
-                  stroke="#E50914"
-                  strokeWidth={2}
-                  dot={{ fill: '#E50914' }}
-                  name="Average Age (years)"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-
-        {/* Growth Rate Analysis */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
-            <Typography variant="h5" gutterBottom>
-              Year-over-Year Growth Rate
-            </Typography>
+      {/* Smaller KPI Charts Grid */}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 16,
+          px: 2,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+          alignItems: 'stretch',
+          mb: 3,
+        }}
+      >
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Content Age Analysis
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trendData.contentAge || []}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="year" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="avgAge"
+                stroke="#E50914"
+                strokeWidth={2}
+                dot={{ fill: '#E50914' }}
+                name="Average Age (years)"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </Paper>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom>
+            Year-over-Year Growth Rate
+          </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trendData.growthRate || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -128,44 +130,44 @@ const TrendIntelligence = ({ data }) => {
                 />
               </LineChart>
             </ResponsiveContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+        </Paper>
+      </Box>
 
       {/* Strategic Insights */}
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
-            <Typography variant="h5" gutterBottom sx={{ color: '#E50914' }}>
-              Key Trend Insights
-            </Typography>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ p: 2, backgroundColor: '#2a2a2a', borderLeft: '4px solid #E50914' }}>
-                  <Typography variant="h6" sx={{ color: '#E50914' }}>
-                    Recent Growth Acceleration
-                  </Typography>
-                  <Typography variant="body2">
-                    Netflix has shown consistent growth in content additions over the past years,
-                    indicating an aggressive expansion strategy.
-                  </Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ p: 2, backgroundColor: '#2a2a2a', borderLeft: '4px solid #E50914' }}>
-                  <Typography variant="h6" sx={{ color: '#E50914' }}>
-                    Content Age Trends
-                  </Typography>
-                  <Typography variant="body2">
-                    The average age of added content shows how Netflix balances new releases
-                    with catalog additions.
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-      </Grid>
+      <Box sx={{ width: '100%', px: 2, mb: 4 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h5" gutterBottom sx={{ color: '#E50914' }}>
+            Key Trend Insights
+          </Typography>
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+              mt: 1,
+            }}
+          >
+            <Box sx={{ p: 2, backgroundColor: '#2a2a2a', borderLeft: '4px solid #E50914' }}>
+              <Typography variant="h6" sx={{ color: '#E50914' }}>
+                Recent Growth Acceleration
+              </Typography>
+              <Typography variant="body2">
+                Netflix has shown consistent growth in content additions over the past years,
+                indicating an aggressive expansion strategy.
+              </Typography>
+            </Box>
+            <Box sx={{ p: 2, backgroundColor: '#2a2a2a', borderLeft: '4px solid #E50914' }}>
+              <Typography variant="h6" sx={{ color: '#E50914' }}>
+                Content Age Trends
+              </Typography>
+              <Typography variant="body2">
+                The average age of added content shows how Netflix balances new releases
+                with catalog additions.
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
     </Box>
   );
 };

@@ -80,6 +80,15 @@ data/*.csv
 data/*.xlsx
 data/*.xls
 
+# Processed data artifacts
+artifacts/processed/
+artifacts/*.pkl
+artifacts/*.parquet
+
+# Large JSON data files
+dashboard-react/public/netflix_data.json
+*.json.bak
+
 # Backup files
 *.bak
 *.backup

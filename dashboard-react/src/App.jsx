@@ -54,6 +54,15 @@ const darkTheme = createTheme({
     },
   },
   components: {
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          maxWidth: 'none !important',
+          paddingLeft: '0 !important',
+          paddingRight: '0 !important',
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {

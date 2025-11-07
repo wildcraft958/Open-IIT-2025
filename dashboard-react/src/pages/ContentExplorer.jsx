@@ -77,101 +77,97 @@ const ContentExplorer = ({ data }) => {
   }, [data]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 4 }}>
+    <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
+      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
         Content Explorer
       </Typography>
 
-      {/* Filters */}
-      <Paper sx={{ p: 3, mb: 4, backgroundColor: '#1f1f1f' }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={3}>
+      {/* Filters full width */}
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              alignItems: 'stretch',
+            }}
+          >
             <TextField
-              fullWidth
               placeholder="Search by title or genre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  color: '#fff',
-                },
-              }}
+              sx={{ '& .MuiOutlinedInput-root': { color: '#fff' } }}
             />
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth>
+            <FormControl>
               <InputLabel>Content Type</InputLabel>
-              <Select
-                value={contentType}
-                label="Content Type"
-                onChange={(e) => setContentType(e.target.value)}
-              >
+              <Select value={contentType} label="Content Type" onChange={(e) => setContentType(e.target.value)}>
                 <MenuItem value="all">All Content</MenuItem>
                 <MenuItem value="Movie">Movies</MenuItem>
                 <MenuItem value="TV Show">TV Shows</MenuItem>
               </Select>
             </FormControl>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth>
+            <FormControl>
               <InputLabel>Sort By</InputLabel>
-              <Select
-                value={sortBy}
-                label="Sort By"
-                onChange={(e) => setSortBy(e.target.value)}
-              >
+              <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
                 <MenuItem value="title">Title (A-Z)</MenuItem>
                 <MenuItem value="release_year">Release Year</MenuItem>
                 <MenuItem value="rating">Rating</MenuItem>
               </Select>
             </FormControl>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Typography variant="caption" sx={{ color: '#888' }}>
-              Found: {filteredData.length} titles
-            </Typography>
-          </Grid>
-        </Grid>
-      </Paper>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography variant="caption" sx={{ color: '#888' }}>
+                Found: {filteredData.length} titles
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
 
-      {/* Charts Overview */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
-            <Typography variant="h6" gutterBottom>
-              Content Type Distribution
-            </Typography>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={typeData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="type" stroke="#fff" />
-                <YAxis stroke="#fff" />
-                <Tooltip />
-                <Bar dataKey="count" fill="#E50914" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
-            <Typography variant="h6" gutterBottom>
-              Top Ratings
-            </Typography>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={ratingDistribution.slice(0, 6)}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="rating" stroke="#fff" />
-                <YAxis stroke="#fff" />
-                <Tooltip />
-                <Bar dataKey="count" fill="#831010" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+      {/* Charts Overview responsive grid */}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 16,
+          px: 2,
+          mb: 3,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(480px, 1fr))',
+          alignItems: 'stretch',
+        }}
+      >
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h6" gutterBottom>
+            Content Type Distribution
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={typeData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="type" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Bar dataKey="count" fill="#E50914" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Paper>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Typography variant="h6" gutterBottom>
+            Top Ratings
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={ratingDistribution.slice(0, 8)}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="rating" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Bar dataKey="count" fill="#831010" />
+            </BarChart>
+          </ResponsiveContainer>
+        </Paper>
+      </Box>
 
-      {/* Content List */}
-      <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
+      {/* Content List full width */}
+      <Box sx={{ px: 2 }}>
+        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
         <Typography variant="h6" gutterBottom>
           Content List ({filteredData.length} results)
         </Typography>
@@ -212,7 +208,8 @@ const ContentExplorer = ({ data }) => {
             </Button>
           </Box>
         )}
-      </Paper>
+        </Paper>
+      </Box>
     </Box>
   );
 };
