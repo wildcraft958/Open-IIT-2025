@@ -27,7 +27,9 @@ const ContentExplorer = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [contentType, setContentType] = useState('all');
   const [sortBy, setSortBy] = useState('title');
+  const [secondarySort, setSecondarySort] = useState('release_year');
   const [displayCount, setDisplayCount] = useState(10);
+  const [exporting, setExporting] = useState(false);
 
   const filteredData = useMemo(() => {
     let filtered = [...(data || [])];
@@ -44,16 +46,24 @@ const ContentExplorer = ({ data }) => {
       );
     }
 
-    if (sortBy === 'rating') {
-      filtered.sort((a, b) => (b.rating || '').localeCompare(a.rating || ''));
-    } else if (sortBy === 'release_year') {
-      filtered.sort((a, b) => (b.release_year || 0) - (a.release_year || 0));
-    } else {
-      filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-    }
+    const primaryComparator = (a, b) => {
+      if (sortBy === 'rating') return (b.rating || '').localeCompare(a.rating || '');
+      if (sortBy === 'release_year') return (b.release_year || 0) - (a.release_year || 0);
+      return (a.title || '').localeCompare(b.title || '');
+    };
+    const secondaryComparator = (a, b) => {
+      if (secondarySort === 'rating') return (b.rating || '').localeCompare(a.rating || '');
+      if (secondarySort === 'release_year') return (b.release_year || 0) - (a.release_year || 0);
+      return (a.title || '').localeCompare(b.title || '');
+    };
+    filtered.sort((a, b) => {
+      const primary = primaryComparator(a, b);
+      if (primary !== 0) return primary;
+      return secondaryComparator(a, b);
+    });
 
     return filtered;
-  }, [data, searchTerm, contentType, sortBy]);
+  }, [data, searchTerm, contentType, sortBy, secondarySort]);
 
   // Rating distribution
   const ratingDistribution = useMemo(() => {
@@ -76,11 +86,74 @@ const ContentExplorer = ({ data }) => {
     return Object.entries(counts).map(([type, count]) => ({ type, count }));
   }, [data]);
 
+  // Quick facts (global, not filtered)
+  const quickFacts = useMemo(() => {
+    const movies = (data || []).filter(d => d.type === 'Movie').length;
+    const tv = (data || []).filter(d => d.type === 'TV Show').length;
+    const genres = new Set((data || []).flatMap(d => d.genres || []));
+    const countries = new Set((data || []).flatMap(d => d.countries || []));
+    return {
+      total: (data || []).length,
+      movies,
+      tv,
+      genres: genres.size,
+      countries: countries.size,
+      topRating: ratingDistribution[0]?.rating || 'N/A',
+    };
+  }, [data, ratingDistribution]);
+
+  const handleExport = () => {
+    try {
+      setExporting(true);
+      const rows = filteredData.map(row => ({
+        title: row.title,
+        type: row.type,
+        rating: row.rating || '',
+        release_year: row.release_year || '',
+        genres: (row.genres || []).join('|'),
+        countries: (row.countries || []).join('|'),
+      }));
+      const header = Object.keys(rows[0] || { title: '', type: '', rating: '', release_year: '', genres: '', countries: '' });
+      const csv = [header.join(','), ...rows.map(r => header.map(h => `"${String(r[h]).replace(/"/g, '""')}"`).join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `content_export_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error('Export failed', e);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
       <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
         Content Explorer
       </Typography>
+
+      {/* Quick Facts Ribbon */}
+      <Box sx={{ px: 2, mb: 2 }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1b1b1b', display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+          {[
+            { label: 'Total Titles', value: quickFacts.total },
+            { label: 'Movies', value: quickFacts.movies },
+            { label: 'TV Shows', value: quickFacts.tv },
+            { label: 'Genres', value: quickFacts.genres },
+            { label: 'Countries', value: quickFacts.countries },
+            { label: 'Top Rating', value: quickFacts.topRating },
+          ].map((fact, i) => (
+            <Box key={i} sx={{ p: 1.5, backgroundColor: '#222', borderLeft: '3px solid #E50914', borderRadius: 1 }}>
+              <Typography variant="caption" sx={{ color: '#888' }}>{fact.label}</Typography>
+              <Typography variant="h6" sx={{ mt: 0.5 }}>{fact.value}</Typography>
+            </Box>
+          ))}
+        </Paper>
+      </Box>
 
       {/* Filters full width */}
       <Box sx={{ px: 2, mb: 3 }}>
@@ -115,10 +188,28 @@ const ContentExplorer = ({ data }) => {
                 <MenuItem value="rating">Rating</MenuItem>
               </Select>
             </FormControl>
+            <FormControl>
+              <InputLabel>Secondary Sort</InputLabel>
+              <Select value={secondarySort} label="Secondary Sort" onChange={(e) => setSecondarySort(e.target.value)}>
+                <MenuItem value="title">Title (A-Z)</MenuItem>
+                <MenuItem value="release_year">Release Year</MenuItem>
+                <MenuItem value="rating">Rating</MenuItem>
+              </Select>
+            </FormControl>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant="caption" sx={{ color: '#888' }}>
                 Found: {filteredData.length} titles
               </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Button
+                variant="outlined"
+                disabled={exporting || filteredData.length === 0}
+                onClick={handleExport}
+                sx={{ color: '#E50914', borderColor: '#E50914', textTransform: 'none' }}
+              >
+                {exporting ? 'Exporting…' : 'Export CSV'}
+              </Button>
             </Box>
           </Box>
         </Paper>
@@ -201,7 +292,7 @@ const ContentExplorer = ({ data }) => {
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Button
               variant="outlined"
-              sx={{ color: '#E50914', borderColor: '#E50914' }}
+              sx={{ color: '#fdfdfdff', borderColor: '#E50914' }}
               onClick={() => setDisplayCount(displayCount + 10)}
             >
               Load More
