@@ -1,0 +1,15 @@
+<html>
+<head><meta charset="utf-8" /></head>
+<body>
+        <!-- End choropleth container -->
+        <script>
+            // Fallback resize logic for embedding inside React component iframe/div if needed
+            window.addEventListener('resize', () => {
+                const el = document.getElementById('42dc815e-81d0-4a36-803e-b774651029db');
+                if (el && window.Plotly) {
+                    window.Plotly.Plots.resize(el);
+                }
+            });
+        </script>
+</body>
+</html>
