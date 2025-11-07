@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
-  Typography,
   Tabs,
   Tab,
   Box,
@@ -17,6 +16,7 @@ import {
   People,
   Lightbulb,
 } from '@mui/icons-material';
+import Logo from '../assets/netflix.svg';
 
 const Navigation = () => {
   const location = useLocation();
@@ -40,19 +40,32 @@ const Navigation = () => {
         borderBottom: '2px solid rgba(229, 9, 20, 0.3)',
       }}
     >
-      <Toolbar sx={{ minHeight: '72px !important', px: 3 }}>
-        <Typography 
-          variant="h4" 
-          sx={{ 
-            color: '#E50914', 
-            fontWeight: 900,
-            mr: 6,
-            textShadow: '0 0 20px rgba(229, 9, 20, 0.6)',
-            letterSpacing: '1px',
+      <Toolbar
+        sx={{
+          minHeight: '68px !important',
+          px: { xs: 1.5, md: 2 },
+          gap: 2,
+        }}
+      >
+        <Box
+          component={Link}
+          to="/"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            textDecoration: 'none',
+            mr: { xs: 1, md: 2 },
+            ml: 0.5,
+            '&:hover img': { filter: 'brightness(1.2)' },
           }}
         >
-          NETFLIX ANALYTICS
-        </Typography>
+          <img
+            src={Logo}
+            alt="Netflix"
+            height="40"
+            style={{ display: 'block' }}
+          />
+        </Box>
         <Tabs
           value={location.pathname}
           variant="scrollable"
@@ -65,6 +78,7 @@ const Navigation = () => {
               borderRadius: '4px 4px 0 0',
               boxShadow: '0 0 10px rgba(229, 9, 20, 0.8)',
             },
+            minHeight: '100%',
           }}
         >
           {tabs.map((tab) => (
@@ -81,16 +95,16 @@ const Navigation = () => {
               to={tab.path}
               sx={{ 
                 color: '#b3b3b3',
-                minHeight: '72px',
-                px: 3,
-                transition: 'all 0.3s ease',
+                minHeight: '68px',
+                px: { xs: 1.5, md: 2.25 },
+                transition: 'all 0.25s ease',
                 '&:hover': {
                   color: '#ffffff',
-                  backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                  backgroundColor: 'rgba(229, 9, 20, 0.08)',
                 },
                 '&.Mui-selected': {
                   color: '#E50914',
-                  backgroundColor: 'rgba(229, 9, 20, 0.15)',
+                  backgroundColor: 'rgba(229, 9, 20, 0.18)',
                 },
               }}
             />
