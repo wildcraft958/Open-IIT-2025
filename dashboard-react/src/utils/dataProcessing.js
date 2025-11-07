@@ -1,4 +1,4 @@
-import { format, getYear, getMonth } from 'date-fns';
+import { format, getYear, getMonth, subMonths } from 'date-fns';
 import _ from 'lodash';
 
 export const processExecutiveMetrics = (data) => {
@@ -7,6 +7,21 @@ export const processExecutiveMetrics = (data) => {
   const totalTitles = data.length;
   const uniqueCountries = new Set(data.flatMap(d => d.countries || []));
   const uniqueGenres = new Set(data.flatMap(d => d.genres || []));
+  
+  // Helpers to parse duration fields
+  const parseMinutes = (val) => {
+    if (!val) return null;
+    const s = String(val).toLowerCase();
+    const m = s.match(/(\d+)\s*min/);
+    return m ? parseInt(m[1], 10) : null;
+  };
+
+  const parseSeasons = (val) => {
+    if (!val) return null;
+    const s = String(val).toLowerCase();
+    const m = s.match(/(\d+)\s*season/); // matches '1 Season' or '3 Seasons'
+    return m ? parseInt(m[1], 10) : null;
+  };
   
   // Content type distribution
   const contentTypeCounts = _.countBy(data, 'type');
@@ -26,6 +41,21 @@ export const processExecutiveMetrics = (data) => {
     }))
     .sort((a, b) => a.year - b.year);
 
+  // Recent additions (last 12 months) sparkline
+  const now = new Date();
+  const last12Months = Array.from({ length: 12 }).map((_, idx) => {
+    const d = subMonths(now, 11 - idx);
+    return format(d, 'yyyy-MM');
+  });
+  const monthlyAdditionsMap = _.countBy(
+    data.filter(d => d.date_added).map(d => format(d.date_added, 'yyyy-MM'))
+  );
+  const recentMonthlyAdditions = last12Months.map(key => ({
+    month: key,
+    titles: monthlyAdditionsMap[key] || 0,
+  }));
+  const addedLast12Months = recentMonthlyAdditions.reduce((acc, d) => acc + d.titles, 0);
+
   // Top genres
   const genreCounts = {};
   data.forEach(item => {
@@ -43,6 +73,24 @@ export const processExecutiveMetrics = (data) => {
   const ratingCounts = _.countBy(data, 'rating');
   const mostCommonRating = Object.entries(ratingCounts)
     .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+  const ratingMix = Object.entries(ratingCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8);
+
+  // Runtime and seasons stats
+  const movieMinutes = data
+    .filter(d => d.type === 'Movie')
+    .map(d => parseMinutes(d.duration))
+    .filter(v => typeof v === 'number' && v > 0);
+  const tvSeasons = data
+    .filter(d => d.type === 'TV Show')
+    .map(d => parseSeasons(d.duration))
+    .filter(v => typeof v === 'number' && v > 0);
+  const avgMovieRuntime = movieMinutes.length ? Math.round(_.mean(movieMinutes)) : null;
+  const medianMovieRuntime = movieMinutes.length ? _.sortBy(movieMinutes)[Math.floor(movieMinutes.length / 2)] : null;
+  const avgTvSeasons = tvSeasons.length ? Math.round(_.mean(tvSeasons) * 10) / 10 : null;
+  const medianTvSeasons = tvSeasons.length ? _.sortBy(tvSeasons)[Math.floor(tvSeasons.length / 2)] : null;
 
   // Key insights
   const keyInsights = [
@@ -75,6 +123,13 @@ export const processExecutiveMetrics = (data) => {
     avgContentAge: mostCommonRating,
     contentTypeDistribution,
     growthOverTime,
+    recentMonthlyAdditions,
+    addedLast12Months,
+    ratingMix,
+    avgMovieRuntime,
+    medianMovieRuntime,
+    avgTvSeasons,
+    medianTvSeasons,
     topGenres,
     keyInsights,
     ratingDistribution: ratingCounts,

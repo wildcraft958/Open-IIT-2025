@@ -47,6 +47,7 @@ const processRawData = (rawData) => {
       genres: toArray(row.genres ?? row.listed_in),
       cast: toArray(row.cast),
       directors: toArray(row.directors ?? row.director),
+      release_year: row.release_year || (row.date_added ? new Date(row.date_added).getFullYear() : null),
     };
   });
 };
