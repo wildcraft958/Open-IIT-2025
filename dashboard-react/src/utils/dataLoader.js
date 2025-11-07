@@ -15,6 +15,19 @@ export const loadNetflixData = async () => {
 // Keep backward compatibility
 export const loadData = loadNetflixData;
 
+const normalizeType = (val) => {
+  if (!val) return 'Unknown';
+  const t = String(val).trim().toLowerCase();
+  if (['movie', 'movies', 'film'].includes(t)) return 'Movie';
+  if (
+    ['tv show', 'tv shows', 'tv-show', 'tv series', 'tv-series', 'series', 'show', 'tvshow'].includes(
+      t
+    )
+  )
+    return 'TV Show';
+  return val; // fall back to original for visibility
+};
+
 const processRawData = (rawData) => {
   return rawData.map(row => {
     const toArray = (value) => {
@@ -28,6 +41,7 @@ const processRawData = (rawData) => {
 
     return {
       ...row,
+      type: normalizeType(row.type),
       date_added: row.date_added ? new Date(row.date_added) : null,
       countries: toArray(row.countries ?? row.country),
       genres: toArray(row.genres ?? row.listed_in),

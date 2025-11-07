@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Paper, Typography, Grid } from '@mui/material';
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import { scaleQuantize } from 'd3-scale';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { processGeographicData } from '../utils/dataProcessing';
 
@@ -119,13 +121,72 @@ const GeographicInsights = ({ data }) => {
             Choropleth highlights breadth of Netflix catalog production origins. Darker red indicates higher title count.
           </Typography>
           <Box sx={{ position: 'relative', width: '100%', height: { xs: 420, md: 560 }, borderRadius: 1, overflow: 'hidden', border: '1px solid #333', mb: 4 }}>
-            <iframe
-              title="World Production Choropleth"
-              src="/world_choropleth.html"
-              style={{ width: '100%', height: '100%', border: 0 }}
-              loading="lazy"
-              aria-label="Interactive world map indicating number of titles produced per country"
-            />
+            <ComposableMap
+              projectionConfig={{ scale: 145 }}
+              style={{ width: '100%', height: '100%', background: 'transparent' }}
+            >
+              <Geographies geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json">
+                {({ geographies }) => {
+                  const counts = geoData.countryCounts || {};
+                  const aliases = {
+                    'United States': 'United States of America',
+                    'Russia': 'Russian Federation',
+                    'Iran': 'Iran, Islamic Republic of',
+                    'South Korea': 'Korea, Republic of',
+                    'North Korea': "Korea, Democratic People's Republic of",
+                    'Vietnam': 'Viet Nam',
+                    'Syria': 'Syrian Arab Republic',
+                    'Türkiye': 'Turkey',
+                    'Congo': 'Congo, Republic of the',
+                    'Congo (Democratic Republic of the)': 'Congo, the Democratic Republic of the',
+                    'Tanzania': 'Tanzania, United Republic of',
+                    'Bolivia': 'Bolivia, Plurinational State of',
+                    'Venezuela': 'Venezuela, Bolivarian Republic of',
+                    'Laos': "Lao People's Democratic Republic",
+                    'Moldova': 'Moldova, Republic of',
+                    'Brunei': 'Brunei Darussalam',
+                    'Cape Verde': 'Cabo Verde',
+                    'Czechia': 'Czech Republic',
+                    'Eswatini': 'Swaziland',
+                    'Micronesia': 'Micronesia, Federated States of',
+                    'Palestine': 'Palestine, State of',
+                    'São Tomé and Príncipe': 'Sao Tome and Principe',
+                  };
+                  const getCountByGeoName = (geoName) => {
+                    // try direct match
+                    if (counts[geoName] != null) return counts[geoName];
+                    // try reverse alias: when atlas uses formal name
+                    const alt = Object.keys(aliases).find(k => aliases[k] === geoName);
+                    if (alt && counts[alt] != null) return counts[alt];
+                    // try alias where input used formal but counts have common
+                    const common = aliases[geoName];
+                    if (common && counts[common] != null) return counts[common];
+                    return 0;
+                  };
+                  const max = Math.max(1, ...Object.values(counts));
+                  const colorScale = scaleQuantize().domain([0, max]).range([
+                    '#fff5f0', '#fee0d2', '#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#99000d'
+                  ]);
+
+                  return geographies.map(geo => {
+                    const name = geo.properties.name || geo.properties.NAME || '';
+                    const value = getCountByGeoName(name);
+                    const fill = value ? colorScale(value) : '#1e1e1e';
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        fill={fill}
+                        stroke="#333"
+                        style={{ default: { outline: 'none' }, hover: { outline: 'none' }, pressed: { outline: 'none' } }}
+                        tabIndex={-1}
+                      >
+                      </Geography>
+                    );
+                  });
+                }}
+              </Geographies>
+            </ComposableMap>
           </Box>
           {/* Removed redundant external Plotly embed; Recharts bar above already shows top countries */}
         </Paper>

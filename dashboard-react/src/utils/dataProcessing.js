@@ -209,6 +209,7 @@ export const processGeographicData = (data) => {
       region,
       count,
     })),
+    countryCounts,
   };
 };
 
