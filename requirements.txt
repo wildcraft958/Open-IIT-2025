@@ -1,0 +1,14 @@
+pandas
+numpy
+plotly
+nltk
+textblob
+scikit-learn
+country_converter
+matplotlib
+seaborn
+pyvis
+networkx
+openpyxl
+wordcloud
+pyarrow
