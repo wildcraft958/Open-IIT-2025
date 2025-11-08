@@ -204,17 +204,19 @@ const CreatorHub = ({ data }) => {
         </Paper>
       </Box>
 
-      {/* Stats cards */}
+      {/* Stats cards (flex layout) */}
       <Box
         sx={{
-          display: 'grid',
-          gap: 16,
+          display: 'flex',
+          gap: 2,
           px: 2,
           mb: 4,
-          gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+          width: '100%',
+          alignItems: 'stretch',
+          flexWrap: 'wrap',
         }}
       >
-        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', flex: '1 1 0', minWidth: 300 }}>
           <Typography variant="h6" sx={{ color: '#E50914' }}>
             Most Prolific Director
           </Typography>
@@ -225,7 +227,7 @@ const CreatorHub = ({ data }) => {
             {creatorData.topDirectors?.[0]?.count || 0} titles
           </Typography>
         </Paper>
-        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', flex: '1 1 0', minWidth: 300 }}>
           <Typography variant="h6" sx={{ color: '#E50914' }}>
             Most Frequent Cast Member
           </Typography>

@@ -208,7 +208,7 @@ const GeographicInsights = ({ data }) => {
         </Paper>
 
         {/* Country x Genre Heatmap (simplified mini version) */}
-        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', width: '100%' }}>
           <Typography variant="h5" gutterBottom>
             Country × Genre Matrix
           </Typography>
@@ -216,11 +216,12 @@ const GeographicInsights = ({ data }) => {
             Top countries by genre strength (darker = more titles)
           </Typography>
           <Box sx={{ overflowX: 'auto', mt: 2 }}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: `120px repeat(${Object.keys(countryGenre[0] || {}).length - 1}, 40px)`, gap: '2px', fontSize: '0.7rem' }}>
+            {/* make columns slightly wider but allow them to shrink with minmax so matrix fits better */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: `120px repeat(${Object.keys(countryGenre[0] || {}).length - 1}, minmax(48px,56px))`, gap: '1px', fontSize: '0.7rem' }}>
               {/* Header Row */}
               <Box sx={{ p: 0.5 }}></Box>
               {Object.keys(countryGenre[0] || {}).filter(k => k !== 'country').map((genre, idx) => (
-                <Box key={idx} sx={{ p: 0.5, color: '#999', writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: '0.65rem', textAlign: 'center' }}>
+                <Box key={idx} sx={{ p: 0.4, color: '#999', writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: '0.6rem', textAlign: 'center' }}>
                   {genre.slice(0, 8)}
                 </Box>
               ))}
@@ -239,9 +240,9 @@ const GeographicInsights = ({ data }) => {
                         key={cIdx}
                         sx={{
                           backgroundColor: `rgba(229, 9, 20, ${opacity})`,
-                          p: 0.5,
+                          p: 0.35,
                           textAlign: 'center',
-                          fontSize: '0.65rem',
+                          fontSize: '0.6rem',
                           color: opacity > 0.5 ? '#fff' : '#666',
                           cursor: 'pointer',
                           '&:hover': { outline: '1px solid #E50914' },

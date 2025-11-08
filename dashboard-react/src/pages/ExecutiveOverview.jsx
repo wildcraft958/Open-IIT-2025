@@ -535,11 +535,11 @@ const ExecutiveOverview = ({ data }) => {
         </Paper>
       </Box>
 
-      {/* Strategic Insights responsive grid */}
-      <Box sx={{ mt: 4, px: 2 }}>
+      {/* Strategic Insights responsive grid - Compact Version */}
+      <Box sx={{ mt: 3, px: 2 }}>
         <Paper 
           sx={{ 
-            p: 3, 
+            p: 2, 
             background: 'linear-gradient(145deg, #1e1e1e, #252525)',
             border: '1px solid rgba(255, 255, 255, 0.05)',
           }}
@@ -550,8 +550,8 @@ const ExecutiveOverview = ({ data }) => {
             sx={{ 
               color: '#E50914',
               fontWeight: 600,
-              fontSize: '1.25rem',
-              mb: 3,
+              fontSize: '1.1rem',
+              mb: 2,
               letterSpacing: '-0.3px',
             }}
           >
@@ -560,22 +560,22 @@ const ExecutiveOverview = ({ data }) => {
           <Box
             sx={{
               display: 'grid',
-              gap: 16,
+              gap: 2,
               mt: 1,
-              gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
               alignItems: 'stretch',
             }}
           >
             {(metrics.keyInsights || []).map((insight, index) => (
               <Card key={index} sx={{ backgroundColor: '#2a2a2a', height: '100%' }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ color: '#E50914' }}>
+                <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                  <Typography variant="h6" sx={{ color: '#E50914', fontSize: '0.95rem', mb: 0.5 }}>
                     {insight.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ mt: 0.5, fontSize: '0.85rem', lineHeight: 1.4 }}>
                     {insight.description}
                   </Typography>
-                  <Typography variant="caption" sx={{ mt: 1, color: '#888', display: 'block' }}>
+                  <Typography variant="caption" sx={{ mt: 0.5, color: '#888', display: 'block', fontSize: '0.7rem' }}>
                     Impact: {insight.impact}
                   </Typography>
                 </CardContent>

@@ -226,17 +226,19 @@ const GenreIntelligence = ({ data }) => {
         </Paper>
       </Box>
 
-      {/* Genre Statistics responsive grid */}
+      {/* Genre Statistics responsive grid (flex layout) */}
       <Box
         sx={{
-          display: 'grid',
-          gap: 16,
+          display: 'flex',
+          gap: 2,
           px: 2,
           mb: 4,
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          width: '100%',
+          alignItems: 'stretch',
+          flexWrap: 'wrap',
         }}
       >
-        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', flex: '1 1 0', minWidth: 220 }}>
           <Typography variant="h6" sx={{ color: '#E50914' }}>
             Total Genres
           </Typography>
@@ -247,7 +249,7 @@ const GenreIntelligence = ({ data }) => {
             Unique genre categories in catalog
           </Typography>
         </Paper>
-        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', flex: '1 1 0', minWidth: 220 }}>
           <Typography variant="h6" sx={{ color: '#E50914' }}>
             Most Popular Genre
           </Typography>
@@ -258,7 +260,7 @@ const GenreIntelligence = ({ data }) => {
             {genreData.topGenres?.[0]?.count || 0} titles
           </Typography>
         </Paper>
-        <Paper sx={{ p: 3, backgroundColor: '#1f1f1f' }}>
+        <Paper sx={{ p: 2, backgroundColor: '#1f1f1f', flex: '1 1 0', minWidth: 220 }}>
           <Typography variant="h6" sx={{ color: '#E50914' }}>
             Genre Diversity
           </Typography>
