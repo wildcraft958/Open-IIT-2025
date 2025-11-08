@@ -44,6 +44,14 @@ npm start
 ```
 This will open the interactive dashboard in your web browser at `http://localhost:3000`.
 
+## Live demo (Deployed Dashboard)
+
+Try the interactive dashboard live at: [https://open-iit.vercel.app/](https://open-iit.vercel.app/)
+
+[![Live Demo](https://img.shields.io/badge/Live-Dashboard-blue?logo=vercel)](https://open-iit.vercel.app/)
+
+This is the deployed version of the React dashboard — use it to quickly explore the project's visualizations and KPIs without running the app locally.
+
 ## Dataset Sources
 - **Primary**: [Netflix Shows on Kaggle](https://www.kaggle.com/datasets/shivamb/netflix-shows) (`netflix_titles.csv`)
 - **Supplementary**:
