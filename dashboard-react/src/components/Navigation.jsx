@@ -14,6 +14,7 @@ import {
   Map,
   Category,
   People,
+  Assessment,
   Lightbulb,
 } from '@mui/icons-material';
 import Logo from '../assets/netflix.svg';
@@ -28,6 +29,7 @@ const Navigation = () => {
     { label: 'Geographic Insights', path: '/geographic', icon: <Map /> },
     { label: 'Genre Intelligence', path: '/genre', icon: <Category /> },
     { label: 'Creator Hub', path: '/creators', icon: <People /> },
+    { label: 'Performance Analysis', path: '/performance', icon: <Assessment /> },
     { label: 'Recommendations', path: '/recommendations', icon: <Lightbulb /> },
   ];
 

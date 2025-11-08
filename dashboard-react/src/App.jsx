@@ -9,6 +9,7 @@ import TrendIntelligence from './pages/TrendIntelligence';
 import GeographicInsights from './pages/GeographicInsights';
 import GenreIntelligence from './pages/GenreIntelligence';
 import CreatorHub from './pages/CreatorHub';
+import PerformanceAnalysis from './pages/PerformanceAnalysis';
 import StrategicRecommendations from './pages/StrategicRecommendations';
 import { loadNetflixData } from './utils/dataLoader';
 import './App.css';
@@ -133,6 +134,7 @@ function App() {
               <Route path="/geographic" element={<GeographicInsights data={data} />} />
               <Route path="/genre" element={<GenreIntelligence data={data} />} />
               <Route path="/creators" element={<CreatorHub data={data} />} />
+              <Route path="/performance" element={<PerformanceAnalysis data={data} />} />
               <Route path="/recommendations" element={<StrategicRecommendations data={data} />} />
             </Routes>
           </div>

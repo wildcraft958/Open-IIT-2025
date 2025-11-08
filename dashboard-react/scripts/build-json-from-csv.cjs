@@ -1,17 +1,30 @@
 #!/usr/bin/env node
 /**
- * Build netflix_data.json from source CSV in ../../data/Copy of netflix_titles.csv
+ * Build netflix_data.json from source CSV
+ * Now supports both old format (2021) and new format (2025)
  * Normalizes fields and writes to public/netflix_data.json
  */
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('csv-parse/sync');
 
-const SRC_CSV = path.resolve(__dirname, '../../data/Copy of netflix_titles.csv');
+// Use combined dataset (movies + TV shows with performance metrics)
+const COMBINED_CSV = path.resolve(__dirname, '../../data/netflix_combined_dataset.csv');
+const NEW_CSV = path.resolve(__dirname, '../../data/Copy of netflix_movies_detailed_up_to_2025 (1).csv');
+const OLD_CSV = path.resolve(__dirname, '../../data/Copy of netflix_titles.csv');
+
+// Priority: Combined > New > Old
+const SRC_CSV = fs.existsSync(COMBINED_CSV) ? COMBINED_CSV : 
+                fs.existsSync(NEW_CSV) ? NEW_CSV : OLD_CSV;
 const DEST_JSON = path.resolve(__dirname, '../public/netflix_data.json');
 
+console.log('📁 Using source CSV:', SRC_CSV);
+if (SRC_CSV === COMBINED_CSV) {
+  console.log('   🎉 Using COMBINED dataset (Movies + TV Shows + Metrics)');
+}
+
 if (!fs.existsSync(SRC_CSV)) {
-  console.error('Source CSV not found at', SRC_CSV);
+  console.error('❌ Source CSV not found at', SRC_CSV);
   process.exit(1);
 }
 
@@ -60,6 +73,9 @@ const toArray = (value) => {
 
   const rows = records.map((obj) => {
     const duration = clean(obj.duration);
+    // Handle both old format (listed_in) and new format (genres)
+    const genresField = obj.genres || obj.listed_in || '';
+    
     const mapped = {
       show_id: clean(obj.show_id),
       type: normalizeType(obj.type, duration),
@@ -71,14 +87,23 @@ const toArray = (value) => {
       release_year: clean(obj.release_year) ? Number(obj.release_year) : null,
       rating: clean(obj.rating),
       duration,
-      listed_in: toArray(obj.listed_in),
+      listed_in: toArray(genresField),
       description: clean(obj.description),
-      genres: toArray(obj.listed_in),
+      genres: toArray(genresField),
       directors: toArray(obj.director),
+      // New fields from 2025 dataset
+      language: clean(obj.language),
+      popularity: clean(obj.popularity) ? Number(obj.popularity) : null,
+      vote_count: clean(obj.vote_count) ? Number(obj.vote_count) : null,
+      vote_average: clean(obj.vote_average) ? Number(obj.vote_average) : null,
+      budget: clean(obj.budget) ? Number(obj.budget) : null,
+      revenue: clean(obj.revenue) ? Number(obj.revenue) : null,
     };
     return mapped;
   });
 
   fs.writeFileSync(DEST_JSON, JSON.stringify(rows, null, 2));
-  console.log(`Wrote ${rows.length} records to ${DEST_JSON}`);
+  console.log(`✅ Wrote ${rows.length} records to ${DEST_JSON}`);
+  console.log(`📊 Dataset: ${SRC_CSV.includes('2025') ? '2010-2025 (Movies)' : '2019-2021 (Movies + TV Shows)'}`);
+  console.log(`🎬 Types: ${[...new Set(rows.map(r => r.type))].join(', ')}`);
 })();

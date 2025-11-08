@@ -777,3 +777,258 @@ export const calendarGrid = (data) => {
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(-365); // Last year
 };
+
+/**
+ * Content Performance Analysis Functions
+ */
+
+export const performanceMetrics = (data) => {
+  if (!data || data.length === 0) return {};
+
+  const withMetrics = data.filter(d => d.popularity || d.vote_count || d.vote_average);
+  
+  const popularityScores = withMetrics.map(d => d.popularity).filter(Boolean);
+  const voteCounts = withMetrics.map(d => d.vote_count).filter(Boolean);
+  const voteAverages = withMetrics.map(d => d.vote_average).filter(Boolean);
+
+  return {
+    avgPopularity: Math.round(_.mean(popularityScores) * 100) / 100,
+    medianPopularity: Math.round(popularityScores.sort((a, b) => a - b)[Math.floor(popularityScores.length / 2)] * 100) / 100,
+    avgVoteCount: Math.round(_.mean(voteCounts)),
+    medianVoteCount: Math.round(voteCounts.sort((a, b) => a - b)[Math.floor(voteCounts.length / 2)]),
+    avgRating: Math.round(_.mean(voteAverages) * 100) / 100,
+    medianRating: Math.round(voteAverages.sort((a, b) => a - b)[Math.floor(voteAverages.length / 2)] * 100) / 100,
+    totalWithMetrics: withMetrics.length,
+  };
+};
+
+export const performanceByYear = (data) => {
+  if (!data || data.length === 0) return [];
+
+  const byYear = {};
+  data.forEach(item => {
+    if (item.release_year && (item.popularity || item.vote_count || item.vote_average)) {
+      const year = item.release_year;
+      if (!byYear[year]) byYear[year] = { popularity: [], voteCount: [], rating: [] };
+      
+      if (item.popularity) byYear[year].popularity.push(item.popularity);
+      if (item.vote_count) byYear[year].voteCount.push(item.vote_count);
+      if (item.vote_average) byYear[year].voteCount.push(item.vote_average);
+    }
+  });
+
+  return Object.entries(byYear)
+    .map(([year, metrics]) => ({
+      year: parseInt(year),
+      avgPopularity: Math.round(_.mean(metrics.popularity) * 10) / 10 || 0,
+      avgVoteCount: Math.round(_.mean(metrics.voteCount)) || 0,
+      avgRating: Math.round(_.mean(metrics.rating) * 100) / 100 || 0,
+      count: Math.max(metrics.popularity.length, metrics.voteCount.length, metrics.rating.length),
+    }))
+    .filter(d => d.year >= 2000 && d.year <= 2025)
+    .sort((a, b) => a.year - b.year);
+};
+
+export const topPerformers = (data, metric = 'popularity', limit = 20) => {
+  if (!data || data.length === 0) return [];
+
+  return data
+    .filter(d => d[metric] && d.title)
+    .sort((a, b) => (b[metric] || 0) - (a[metric] || 0))
+    .slice(0, limit)
+    .map(d => ({
+      title: d.title,
+      value: d[metric],
+      year: d.release_year,
+      rating: d.vote_average,
+      votes: d.vote_count,
+    }));
+};
+
+/**
+ * Financial Analysis Functions
+ */
+
+export const financialMetrics = (data) => {
+  if (!data || data.length === 0) return {};
+
+  const withFinancials = data.filter(d => d.budget && d.revenue && d.budget > 0);
+  
+  const budgets = withFinancials.map(d => d.budget);
+  const revenues = withFinancials.map(d => d.revenue);
+  const rois = withFinancials.map(d => ((d.revenue - d.budget) / d.budget) * 100);
+
+  return {
+    totalBudget: _.sum(budgets),
+    totalRevenue: _.sum(revenues),
+    avgBudget: Math.round(_.mean(budgets)),
+    medianBudget: Math.round(budgets.sort((a, b) => a - b)[Math.floor(budgets.length / 2)]),
+    avgRevenue: Math.round(_.mean(revenues)),
+    medianRevenue: Math.round(revenues.sort((a, b) => a - b)[Math.floor(revenues.length / 2)]),
+    avgROI: Math.round(_.mean(rois) * 10) / 10,
+    medianROI: Math.round(rois.sort((a, b) => a - b)[Math.floor(rois.length / 2)] * 10) / 10,
+    profitableCount: withFinancials.filter(d => d.revenue > d.budget).length,
+    totalWithFinancials: withFinancials.length,
+  };
+};
+
+export const financialByYear = (data) => {
+  if (!data || data.length === 0) return [];
+
+  const byYear = {};
+  data.forEach(item => {
+    if (item.release_year && item.budget && item.revenue && item.budget > 0) {
+      const year = item.release_year;
+      if (!byYear[year]) byYear[year] = { budgets: [], revenues: [], rois: [] };
+      
+      byYear[year].budgets.push(item.budget);
+      byYear[year].revenues.push(item.revenue);
+      const roi = ((item.revenue - item.budget) / item.budget) * 100;
+      byYear[year].rois.push(roi);
+    }
+  });
+
+  return Object.entries(byYear)
+    .map(([year, metrics]) => ({
+      year: parseInt(year),
+      avgBudget: Math.round(_.mean(metrics.budgets) / 1000000), // In millions
+      avgRevenue: Math.round(_.mean(metrics.revenues) / 1000000), // In millions
+      avgROI: Math.round(_.mean(metrics.rois) * 10) / 10,
+      count: metrics.budgets.length,
+    }))
+    .filter(d => d.year >= 2000 && d.year <= 2025)
+    .sort((a, b) => a.year - b.year);
+};
+
+export const budgetRevenueDistribution = (data) => {
+  if (!data || data.length === 0) return { budget: [], revenue: [], roi: [] };
+
+  const withFinancials = data.filter(d => d.budget && d.revenue && d.budget > 0);
+
+  // Create distribution buckets
+  const budgetBuckets = {
+    '<10M': 0,
+    '10M-50M': 0,
+    '50M-100M': 0,
+    '100M-200M': 0,
+    '>200M': 0,
+  };
+
+  const revenueBuckets = {
+    '<50M': 0,
+    '50M-200M': 0,
+    '200M-500M': 0,
+    '500M-1B': 0,
+    '>1B': 0,
+  };
+
+  const roiBuckets = {
+    '<0% (Loss)': 0,
+    '0-100%': 0,
+    '100-300%': 0,
+    '300-500%': 0,
+    '>500%': 0,
+  };
+
+  withFinancials.forEach(item => {
+    const budget = item.budget / 1000000; // In millions
+    const revenue = item.revenue / 1000000;
+    const roi = ((item.revenue - item.budget) / item.budget) * 100;
+
+    // Budget distribution
+    if (budget < 10) budgetBuckets['<10M']++;
+    else if (budget < 50) budgetBuckets['10M-50M']++;
+    else if (budget < 100) budgetBuckets['50M-100M']++;
+    else if (budget < 200) budgetBuckets['100M-200M']++;
+    else budgetBuckets['>200M']++;
+
+    // Revenue distribution
+    if (revenue < 50) revenueBuckets['<50M']++;
+    else if (revenue < 200) revenueBuckets['50M-200M']++;
+    else if (revenue < 500) revenueBuckets['200M-500M']++;
+    else if (revenue < 1000) revenueBuckets['500M-1B']++;
+    else revenueBuckets['>1B']++;
+
+    // ROI distribution
+    if (roi < 0) roiBuckets['<0% (Loss)']++;
+    else if (roi < 100) roiBuckets['0-100%']++;
+    else if (roi < 300) roiBuckets['100-300%']++;
+    else if (roi < 500) roiBuckets['300-500%']++;
+    else roiBuckets['>500%']++;
+  });
+
+  return {
+    budget: Object.entries(budgetBuckets).map(([range, count]) => ({ range, count })),
+    revenue: Object.entries(revenueBuckets).map(([range, count]) => ({ range, count })),
+    roi: Object.entries(roiBuckets).map(([range, count]) => ({ range, count })),
+  };
+};
+
+// Language Analysis
+export const languageDistribution = (data, top = 15) => {
+  if (!data || data.length === 0) return [];
+
+  const langCounts = _.countBy(data.filter(d => d.language), 'language');
+  
+  return Object.entries(langCounts)
+    .map(([language, count]) => ({
+      language,
+      count,
+      percentage: Math.round((count / data.length) * 100 * 10) / 10,
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, top);
+};
+
+export const languageByYear = (data, top = 8) => {
+  if (!data || data.length === 0) return [];
+
+  const langByYear = {};
+  data.forEach(item => {
+    if (item.release_year && item.language) {
+      const year = item.release_year;
+      if (!langByYear[year]) langByYear[year] = {};
+      langByYear[year][item.language] = (langByYear[year][item.language] || 0) + 1;
+    }
+  });
+
+  // Get top languages overall
+  const langCounts = _.countBy(data.filter(d => d.language), 'language');
+  const topLangs = Object.entries(langCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, top)
+    .map(([lang]) => lang);
+
+  const result = Object.entries(langByYear)
+    .map(([year, langs]) => {
+      const row = { year: parseInt(year) };
+      topLangs.forEach(lang => {
+        row[lang] = langs[lang] || 0;
+      });
+      return row;
+    })
+    .filter(d => d.year >= 2000 && d.year <= 2025)
+    .sort((a, b) => a.year - b.year);
+
+  return { data: result, languages: topLangs };
+};
+
+export const languagePerformance = (data, top = 12) => {
+  if (!data || data.length === 0) return [];
+
+  const withMetrics = data.filter(d => d.language && d.popularity && d.vote_average);
+  
+  const byLang = _.groupBy(withMetrics, 'language');
+  
+  return Object.entries(byLang)
+    .map(([language, items]) => ({
+      language,
+      count: items.length,
+      avgPopularity: Math.round(_.mean(items.map(d => d.popularity))),
+      avgRating: Math.round(_.mean(items.map(d => d.vote_average)) * 10) / 10,
+      avgVotes: Math.round(_.mean(items.map(d => d.vote_count || 0))),
+    }))
+    .filter(d => d.count >= 5) // Only languages with sufficient data
+    .sort((a, b) => b.avgPopularity - a.avgPopularity)
+    .slice(0, top);
+};

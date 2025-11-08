@@ -1,14 +1,20 @@
 #!/usr/bin/env node
 /**
- * Build netflix_data.json from source CSV in ../../data/Copy of netflix_titles.csv
+ * Build netflix_data.json from source CSV
+ * Now supports both old format (2021) and new format (2025)
  * Normalizes fields and writes to public/netflix_data.json
  */
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-const SRC_CSV = path.resolve(__dirname, '../../data/Copy of netflix_titles.csv');
+// Try new 2025 dataset first, fallback to old 2021 dataset
+const NEW_CSV = path.resolve(__dirname, '../../data/Copy of netflix_movies_detailed_up_to_2025 (1).csv');
+const OLD_CSV = path.resolve(__dirname, '../../data/Copy of netflix_titles.csv');
+const SRC_CSV = fs.existsSync(NEW_CSV) ? NEW_CSV : OLD_CSV;
 const DEST_JSON = path.resolve(__dirname, '../public/netflix_data.json');
+
+console.log('Using source CSV:', SRC_CSV);
 
 if (!fs.existsSync(SRC_CSV)) {
   console.error('Source CSV not found at', SRC_CSV);
@@ -51,6 +57,10 @@ const toArray = (value) => {
     if (headers.length === 0) { headers = parts; continue; }
     const obj = {};
     headers.forEach((h, idx) => { obj[h] = parts[idx]; });
+    
+    // Handle both old format (listed_in) and new format (genres)
+    const genresField = obj.genres || obj.listed_in || '';
+    
     const mapped = {
       show_id: obj.show_id,
       type: normalizeType(obj.type),
@@ -62,13 +72,22 @@ const toArray = (value) => {
       release_year: obj.release_year ? Number(obj.release_year) : null,
       rating: obj.rating,
       duration: obj.duration,
-      listed_in: toArray(obj.listed_in),
+      listed_in: toArray(genresField),
       description: obj.description,
-      genres: toArray(obj.listed_in),
+      genres: toArray(genresField),
       directors: toArray(obj.director),
+      // New fields from 2025 dataset
+      language: obj.language || null,
+      popularity: obj.popularity ? Number(obj.popularity) : null,
+      vote_count: obj.vote_count ? Number(obj.vote_count) : null,
+      vote_average: obj.vote_average ? Number(obj.vote_average) : null,
+      budget: obj.budget ? Number(obj.budget) : null,
+      revenue: obj.revenue ? Number(obj.revenue) : null,
     };
     rows.push(mapped);
   }
   fs.writeFileSync(DEST_JSON, JSON.stringify(rows, null, 2));
   console.log(`Wrote ${rows.length} records to ${DEST_JSON}`);
+  console.log(`Schema: ${headers.join(', ')}`);
+  console.log(`Dataset contains data from ${SRC_CSV.includes('2025') ? '2010-2025' : '2019-2021'}`);
 })();
