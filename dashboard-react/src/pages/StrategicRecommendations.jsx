@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Paper, Typography, Grid, Card, CardContent, Chip } from '@mui/material';
-import { CheckCircle, Lightbulb, TrendingUp, Warning, Star } from '@mui/icons-material';
+import { CheckCircle, Lightbulb, TrendingUp, Warning, Star, AccessTime } from '@mui/icons-material';
 import { 
   computeFreshness, 
   genreMomentum, 
@@ -120,64 +120,315 @@ const StrategicRecommendations = ({ data }) => {
         Strategic Recommendations
       </Typography>
 
-      {/* Key Metrics Dashboard */}
-      <Box sx={{ mb: 4 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ backgroundColor: '#1f1f1f', borderLeft: '4px solid #E50914' }}>
-              <CardContent>
-                <Typography variant="caption" sx={{ color: '#999' }}>Freshness Score</Typography>
-                <Typography variant="h4" sx={{ color: '#E50914', mt: 1 }}>{freshness.score}%</Typography>
+      {/* Key Strategic Insights */}
+      <Typography variant="h4" sx={{ color: '#E50914', mb: 3, mt: 2 }}>
+        Key Strategic Insights
+      </Typography>
+      
+      <Box sx={{ mb: 5 }}>
+        <Grid container spacing={3}>
+          {/* Content Growth Acceleration */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              backgroundColor: '#1f1f1f', 
+              borderLeft: '4px solid #E50914',
+              height: '100%',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(229, 9, 20, 0.3)' }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <TrendingUp sx={{ color: '#E50914', fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#E50914' }}>
+                    Content Growth Acceleration
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: '#ddd', mb: 2 }}>
+                  Netflix has increased content additions significantly over the years
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Catalog Size</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>23,162 titles</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Freshness Score</Typography>
+                    <Typography variant="h6" sx={{ color: freshness.score >= 20 ? '#4caf50' : '#ff9800' }}>
+                      {freshness.score}%
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Recent Additions</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>{freshness.recentCount}</Typography>
+                  </Box>
+                </Box>
                 <Chip 
-                  label={freshness.category} 
+                  label={`Status: ${freshness.category}`}
                   size="small" 
                   sx={{ 
-                    mt: 1, 
+                    mt: 2, 
                     backgroundColor: freshness.score >= 20 ? '#2e7d32' : '#ed6c02',
                     color: '#fff'
                   }} 
                 />
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ backgroundColor: '#1f1f1f', borderLeft: '4px solid #831010' }}>
-              <CardContent>
-                <Typography variant="caption" sx={{ color: '#999' }}>Data Quality</Typography>
-                <Typography variant="h4" sx={{ color: '#831010', mt: 1 }}>{quality.completeness}%</Typography>
-                <Typography variant="caption" sx={{ color: '#666', mt: 1, display: 'block' }}>
-                  {quality.completeRecords} complete records
+                <Typography variant="caption" sx={{ color: '#666', mt: 2, display: 'block' }}>
+                  Impact: High
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ backgroundColor: '#1f1f1f', borderLeft: '4px solid #B20710' }}>
-              <CardContent>
-                <Typography variant="caption" sx={{ color: '#999' }}>
-                  {topGrowthGenres.length > 0 ? 'Top Growth Genre' : 'Most Popular Genre'}
+
+          {/* International Expansion */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              backgroundColor: '#1f1f1f', 
+              borderLeft: '4px solid #831010',
+              height: '100%',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(131, 16, 16, 0.3)' }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <Star sx={{ color: '#831010', fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#831010' }}>
+                    International Expansion
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: '#ddd', mb: 2 }}>
+                  International content represents 82.1% of catalog
                 </Typography>
-                <Typography variant="h6" sx={{ color: '#B20710', mt: 1 }}>
-                  {topGrowthGenres[0]?.genre || genreDistribution[0]?.genre || 'N/A'}
-                </Typography>
-                <Typography variant="caption" sx={{ color: topGrowthGenres.length > 0 ? '#4caf50' : '#666', mt: 1, display: 'block' }}>
-                  {topGrowthGenres.length > 0 
-                    ? `+${topGrowthGenres[0]?.delta}% momentum`
-                    : `${genreDistribution[0]?.count?.toLocaleString() || 0} titles`
-                  }
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Global Reach</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>147 countries</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Top Market</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>{topRegions[0]?.region || 'United States'}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>International %</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>82.1%</Typography>
+                  </Box>
+                </Box>
+                <Chip 
+                  label="Opportunity: Emerging Markets"
+                  size="small" 
+                  sx={{ 
+                    mt: 2, 
+                    backgroundColor: '#1976d2',
+                    color: '#fff'
+                  }} 
+                />
+                <Typography variant="caption" sx={{ color: '#666', mt: 2, display: 'block' }}>
+                  Impact: High
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ backgroundColor: '#1f1f1f', borderLeft: '4px solid #FF0000' }}>
-              <CardContent>
-                <Typography variant="caption" sx={{ color: '#999' }}>Leading Region</Typography>
-                <Typography variant="h6" sx={{ color: '#FF0000', mt: 1 }}>
-                  {topRegions[0]?.region || 'N/A'}
+
+          {/* Genre Diversity */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              backgroundColor: '#1f1f1f', 
+              borderLeft: '4px solid #B20710',
+              height: '100%',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(178, 7, 16, 0.3)' }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <Lightbulb sx={{ color: '#B20710', fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#B20710' }}>
+                    Genre Diversity
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: '#ddd', mb: 2 }}>
+                  Netflix offers 61 different genres in its catalog
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#666', mt: 1, display: 'block' }}>
-                  {topRegions[0]?.count || 0} titles
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Total Genres</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>61 genres</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>
+                      {topGrowthGenres.length > 0 ? 'Top Growth' : 'Most Popular'}
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>
+                      {topGrowthGenres[0]?.genre || genreDistribution[0]?.genre || 'Drama'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>
+                      {topGrowthGenres.length > 0 ? 'Momentum' : 'Title Count'}
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: topGrowthGenres.length > 0 ? '#4caf50' : '#fff' }}>
+                      {topGrowthGenres.length > 0 
+                        ? `+${topGrowthGenres[0]?.delta}%`
+                        : genreDistribution[0]?.count?.toLocaleString() || '0'
+                      }
+                    </Typography>
+                  </Box>
+                </Box>
+                <Chip 
+                  label="Focus: Niche Genres"
+                  size="small" 
+                  sx={{ 
+                    mt: 2, 
+                    backgroundColor: '#9c27b0',
+                    color: '#fff'
+                  }} 
+                />
+                <Typography variant="caption" sx={{ color: '#666', mt: 2, display: 'block' }}>
+                  Impact: Medium
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Data Quality & Coverage */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              backgroundColor: '#1f1f1f', 
+              borderLeft: '4px solid #FF0000',
+              height: '100%',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(255, 0, 0, 0.3)' }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <Warning sx={{ color: '#FF0000', fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#FF0000' }}>
+                    Data Quality & Coverage
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: '#ddd', mb: 2 }}>
+                  Comprehensive data across performance, financial, and language metrics
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Performance Data</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>81%</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Financial Data</Typography>
+                    <Typography variant="h6" sx={{ color: '#ff9800' }}>27%</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Metadata Complete</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>{quality.completeness}%</Typography>
+                  </Box>
+                </Box>
+                <Chip 
+                  label="Priority: Improve Movie Financial Data"
+                  size="small" 
+                  sx={{ 
+                    mt: 2, 
+                    backgroundColor: '#ff5722',
+                    color: '#fff'
+                  }} 
+                />
+                <Typography variant="caption" sx={{ color: '#666', mt: 2, display: 'block' }}>
+                  Impact: Low
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Content Mix Strategy */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              backgroundColor: '#1f1f1f', 
+              borderLeft: '4px solid #d32f2f',
+              height: '100%',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(211, 47, 47, 0.3)' }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <CheckCircle sx={{ color: '#d32f2f', fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#d32f2f' }}>
+                    Content Mix Strategy
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: '#ddd', mb: 2 }}>
+                  Balanced portfolio with strong movie dominance
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Movies</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>88%</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>TV Shows</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>12%</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>TV Show ROI</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>157%</Typography>
+                  </Box>
+                </Box>
+                <Chip 
+                  label="Trend: TV Shows Gaining Momentum"
+                  size="small" 
+                  sx={{ 
+                    mt: 2, 
+                    backgroundColor: '#2e7d32',
+                    color: '#fff'
+                  }} 
+                />
+                <Typography variant="caption" sx={{ color: '#666', mt: 2, display: 'block' }}>
+                  Impact: High
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Language & Localization */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              backgroundColor: '#1f1f1f', 
+              borderLeft: '4px solid #ff6b6b',
+              height: '100%',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(255, 107, 107, 0.3)' }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <AccessTime sx={{ color: '#ff6b6b', fontSize: 32 }} />
+                  <Typography variant="h6" sx={{ color: '#ff6b6b' }}>
+                    Language & Localization
+                  </Typography>
+                </Box>
+                <Typography variant="body1" sx={{ color: '#ddd', mb: 2 }}>
+                  Multi-language strategy with 74 distinct languages
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Languages</Typography>
+                    <Typography variant="h6" sx={{ color: '#4caf50' }}>74 languages</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>English Content</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>48%</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ color: '#999' }}>Asian Content</Typography>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>21%</Typography>
+                  </Box>
+                </Box>
+                <Chip 
+                  label="Growth: Korean & Japanese Content"
+                  size="small" 
+                  sx={{ 
+                    mt: 2, 
+                    backgroundColor: '#00897b',
+                    color: '#fff'
+                  }} 
+                />
+                <Typography variant="caption" sx={{ color: '#666', mt: 2, display: 'block' }}>
+                  Impact: High
                 </Typography>
               </CardContent>
             </Card>

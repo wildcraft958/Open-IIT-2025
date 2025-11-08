@@ -230,6 +230,12 @@ const ExecutiveOverview = ({ data }) => {
                   color: '#fff',
                 }}
               />
+              <Legend 
+                verticalAlign="bottom" 
+                height={36}
+                iconType="circle"
+                formatter={(value) => <span style={{ color: '#ddd', fontSize: '0.75rem' }}>{value}</span>}
+              />
             </PieChart>
           </ResponsiveContainer>
         </Paper>

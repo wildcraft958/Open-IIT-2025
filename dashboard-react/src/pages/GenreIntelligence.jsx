@@ -118,7 +118,7 @@ const GenreIntelligence = ({ data }) => {
           <ResponsiveContainer width="100%" height={360}>
             <BarChart data={momentum} layout="vertical" margin={{ top: 5, right: 30, left: 120, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis type="number" stroke="#fff" tickFormatter={(val) => `${val}%`} />
+              <XAxis type="number" stroke="#fff" tickFormatter={(val) => `${Math.abs(val)}%`} />
               <YAxis dataKey="genre" type="category" stroke="#fff" width={110} />
               <Tooltip
                 contentStyle={{
@@ -127,9 +127,9 @@ const GenreIntelligence = ({ data }) => {
                   borderRadius: '8px',
                   color: '#fff',
                 }}
-                formatter={(value) => [`${value}%`, 'Change']}
+                formatter={(value) => [`${value > 0 ? '+' : ''}${value}%`, 'Change']}
               />
-              <Bar dataKey="delta" fill={(entry) => entry.delta >= 0 ? '#4caf50' : '#f44336'}>
+              <Bar dataKey="delta">
                 {momentum.map((entry, index) => (
                   <Cell key={`momentum-${index}`} fill={entry.delta >= 0 ? '#4caf50' : '#f44336'} />
                 ))}
