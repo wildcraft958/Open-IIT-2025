@@ -15,7 +15,7 @@ import {
   Scatter,
   Cell,
 } from 'recharts';
-import { getYear, getMonth } from 'date-fns';
+import { getYear } from 'date-fns';
 import { processTrendData, calendarGrid, ageByAddedYear } from '../utils/dataProcessing';
 
 const TrendIntelligence = ({ data }) => {
@@ -60,8 +60,8 @@ const TrendIntelligence = ({ data }) => {
         </Typography>
         <Paper sx={{ p: 2.5, backgroundColor: 'rgba(131, 16, 16, 0.15)', border: '1px solid rgba(131, 16, 16, 0.4)' }}>
           <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
-            <strong style={{ color: '#E50914' }}>� Content Mix Evolution:</strong> While movies dominate the overall catalog (94%), 
-            recent years (2019-2021) show TV shows gaining momentum, with 2020 seeing more TV show additions (594) than previous years.
+            <strong style={{ color: '#E50914' }}>📺 Content Mix Evolution:</strong> Movies dominate the overall catalog (88%), 
+            with TV shows making up 12% (2,676 titles). Recent years show TV shows gaining momentum as Netflix expands original series production.
           </Typography>
           <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
             <strong style={{ color: '#FF6B6B' }}>📅 Q4 Content Loading Pattern:</strong> Data confirms 26% of content additions occur 

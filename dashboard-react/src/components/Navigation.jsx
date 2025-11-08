@@ -56,16 +56,27 @@ const Navigation = () => {
             display: 'flex',
             alignItems: 'center',
             textDecoration: 'none',
-            mr: { xs: 1, md: 2 },
+            mr: { xs: 1, md: 3 },
             ml: 0.5,
-            '&:hover img': { filter: 'brightness(1.2)' },
+            flexShrink: 0,
+            transition: 'transform 0.2s ease',
+            '&:hover': { 
+              transform: 'scale(1.05)',
+            },
+            '&:hover img': { 
+              filter: 'brightness(1.2) drop-shadow(0 0 8px rgba(229, 9, 20, 0.6))',
+            },
           }}
         >
           <img
             src={Logo}
             alt="Netflix"
-            height="40"
-            style={{ display: 'block' }}
+            style={{ 
+              display: 'block',
+              height: '78px',
+              width: 'auto',
+              maxWidth: '180px',
+            }}
           />
         </Box>
         <Tabs

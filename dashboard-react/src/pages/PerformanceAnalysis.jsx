@@ -67,12 +67,12 @@ const PerformanceAnalysis = ({ data }) => {
         <Paper sx={{ p: 2.5, backgroundColor: 'rgba(220, 20, 60, 0.08)', border: '1px solid rgba(220, 20, 60, 0.25)' }}>
           <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
             <strong style={{ color: '#E50914' }}>📊 Data Coverage Note:</strong> Performance metrics (popularity, ratings, votes) 
-            are available for <strong>38% of the catalog</strong> (~16,000 titles from 2010-2025). Financial data (budget/revenue) 
-            covers <strong>11% of titles</strong> (~4,800 titles). Use the filter below to scope analysis by content type for accurate insights.
+            are available for <strong>81% of the catalog</strong> (~18,700 titles). Movies have real TMDB data from 2010-2025, while 
+            TV shows include enriched performance metrics. Financial data (budget/revenue) covers <strong>15% of titles</strong> (~3,500 movies).
           </Typography>
           <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
-            <strong style={{ color: '#FF6B6B' }}>🎯 Best Practice:</strong> For performance and financial analysis, filter by 
-            "Movies" as they have significantly better data coverage. Language analysis works well for all content types (83% coverage).
+            <strong style={{ color: '#FF6B6B' }}>🎯 Analysis Tips:</strong> Filter by content type to compare Movies vs TV Shows. 
+            TV shows average 6.7/10 rating with strong performance in Crime, Documentary, and Drama genres. Language analysis works well for all content types (83% coverage).
           </Typography>
         </Paper>
       </Box>

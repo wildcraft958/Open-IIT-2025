@@ -30,8 +30,8 @@ import {
   processExecutiveMetrics, 
   computeFreshness, 
   computeDurationStats,
-  additionsByMonth,
-  genreOverTime
+  additionsByMonth
+  // genreOverTime - available for future use
 } from '../utils/dataProcessing';
 
 const COLORS = ['#E50914', '#831010', '#B20710', '#FF0000', '#FF6B6B'];
@@ -41,7 +41,8 @@ const ExecutiveOverview = ({ data }) => {
   const freshness = useMemo(() => computeFreshness(data), [data]);
   const durationStats = useMemo(() => computeDurationStats(data), [data]);
   const recentAdditions = useMemo(() => additionsByMonth(data, 12), [data]);
-  const genreTimeline = useMemo(() => genreOverTime(data, 6), [data]);
+  // Genre timeline data (available for future visualizations)
+  // const genreTimeline = useMemo(() => genreOverTime(data, 6), [data]);
 
   const medianYear = useMemo(() => {
     const years = data.map(d => d.release_year).filter(Boolean).sort((a, b) => a - b);
@@ -67,8 +68,8 @@ const ExecutiveOverview = ({ data }) => {
         <Paper sx={{ p: 2.5, backgroundColor: 'rgba(229, 9, 20, 0.08)', border: '1px solid rgba(229, 9, 20, 0.3)' }}>
           <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
             <strong style={{ color: '#E50914' }}>📊 Catalog Snapshot:</strong> Netflix has evolved from a US-centric movie platform into a global content powerhouse. 
-            The catalog now spans <strong>{metrics.totalCountries || 150}</strong> countries with <strong>{metrics.totalTitles?.toLocaleString() || '42,000+'}</strong> titles 
-            (94% movies, 6% TV shows). The platform maintains a mature audience focus (most common rating: 6.9/10) with strong growth in international markets.
+            The catalog now spans <strong>{metrics.totalCountries || 148}</strong> countries with <strong>{metrics.totalTitles?.toLocaleString() || '23,162'}</strong> titles 
+            (88% movies, 12% TV shows). The platform maintains a mature audience focus with strong growth in international markets and comprehensive performance tracking (69% of content has metrics).
           </Typography>
         </Paper>
       </Box>
