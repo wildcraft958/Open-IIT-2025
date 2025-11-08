@@ -10,7 +10,14 @@ from typing import Iterable
 import country_converter as coco
 import pandas as pd
 
-from .utils import clean_list_field, ensure_dir, parse_duration_to_minutes
+try:  # allow running the script directly (no package context)
+    from .utils import clean_list_field, ensure_dir, parse_duration_to_minutes
+except Exception:  # pragma: no cover - try alternate import paths
+    try:
+        from submission.code.utils import clean_list_field, ensure_dir, parse_duration_to_minutes
+    except Exception:
+        # last resort when running from the `submission/code` folder directly
+        from utils import clean_list_field, ensure_dir, parse_duration_to_minutes
 
 LOGGER = logging.getLogger(__name__)
 
