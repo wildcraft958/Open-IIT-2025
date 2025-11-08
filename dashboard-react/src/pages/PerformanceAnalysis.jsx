@@ -74,10 +74,10 @@ const PerformanceAnalysis = ({ data }) => {
           aria-label="content type filter"
           sx={{
             '& .MuiToggleButton-root': {
-              color: '#999',
+              color: '#f0eeeeff',
               borderColor: '#333',
               '&.Mui-selected': {
-                color: '#E50914',
+                color: '#f1e9eaff',
                 backgroundColor: 'rgba(229, 9, 20, 0.1)',
                 borderColor: '#E50914',
               },
@@ -533,7 +533,7 @@ const PerformanceAnalysis = ({ data }) => {
       </Box>
 
       {/* Language Analysis Section */}
-      <Box sx={{ px: 2, mb: 3, mt: 5 }}>
+      <Box sx={{ px: 2, mb: 3, mt: 5 , width: '100%'}}>
         <Typography variant="h5" sx={{ color: '#E50914', mb: 2, fontWeight: 600 }}>
           Language Analysis
         </Typography>
@@ -545,7 +545,7 @@ const PerformanceAnalysis = ({ data }) => {
             alignItems: 'stretch',
           }}
         >
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '120%' }}>
             <Typography variant="h6" gutterBottom>
               Top 15 Languages by Content Volume
             </Typography>
@@ -575,7 +575,7 @@ const PerformanceAnalysis = ({ data }) => {
             </ResponsiveContainer>
           </Paper>
 
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
+          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '150%' }}>
             <Typography variant="h6" gutterBottom>
               Language Performance Metrics
             </Typography>
@@ -615,7 +615,7 @@ const PerformanceAnalysis = ({ data }) => {
                 </Scatter>
               </ScatterChart>
             </ResponsiveContainer>
-            <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {langPerf.slice(0, 8).map((lang, idx) => (
                 <Chip
                   key={idx}
