@@ -18,8 +18,26 @@ OUTPUT_REPORT = BASE_DIR / "INSIGHTS_VALIDATION_REPORT.md"
 def load_data():
     """Load the combined Netflix dataset"""
     print("📂 Loading Netflix combined dataset...")
-    df = pd.read_csv(DATASET)
-    print(f"   ✓ Loaded {len(df):,} records")
+    try:
+        # Try with more lenient parsing settings
+        df = pd.read_csv(DATASET, 
+                        low_memory=False,
+                        encoding='utf-8',
+                        quoting=1,  # QUOTE_ALL
+                        engine='python',  # More flexible parsing
+                        on_bad_lines='skip')
+    except Exception as e:
+        print(f"   ⚠️  Standard parsing failed: {e}")
+        print("   Trying alternative parsing method...")
+        # Fallback to c engine without bad lines handling
+        df = pd.read_csv(DATASET, low_memory=False, encoding='utf-8')
+    
+    # Remove duplicates that might be created by parsing errors
+    initial_count = len(df)
+    df = df.drop_duplicates(subset=['show_id', 'title', 'release_year'], keep='first')
+    if len(df) < initial_count:
+        print(f"   ⚠️  Removed {initial_count - len(df):,} duplicate records")
+    print(f"   ✓ Loaded {len(df):,} unique records")
     return df
 
 def validate_executive_metrics(df):
