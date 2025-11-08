@@ -26,9 +26,23 @@ const GenreIntelligence = ({ data }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
-      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
-        Genre Intelligence
-      </Typography>
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 2 }}>
+          Genre Intelligence
+        </Typography>
+        <Paper sx={{ p: 2.5, backgroundColor: 'rgba(255, 0, 0, 0.08)', border: '1px solid rgba(255, 0, 0, 0.25)' }}>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
+            <strong style={{ color: '#E50914' }}>📺 Genre Saturation Alert:</strong> The catalog shows heavy concentration in 
+            Dramas, Comedies, and Thrillers. While these are popular, diversification into high-engagement niche genres 
+            (Documentaries, Stand-Up Comedy) presents growth opportunities.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
+            <strong style={{ color: '#FF6B6B' }}>💡 High-Value Gap:</strong> Analysis of box-office data reveals that high-revenue 
+            genres like Musicals and high-concept Sci-Fi are underrepresented. <em>Recommendation: Actively acquire award-winning 
+            documentaries and premium stand-up specials to satisfy engaged niche audiences.</em>
+          </Typography>
+        </Paper>
+      </Box>
 
       {/* Top Genres full width */}
       <Box sx={{ px: 2, mb: 3 }}>

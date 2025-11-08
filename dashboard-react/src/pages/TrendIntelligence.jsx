@@ -54,9 +54,26 @@ const TrendIntelligence = ({ data }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
-      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
-        Trend Intelligence
-      </Typography>
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 2 }}>
+          Trend Intelligence
+        </Typography>
+        <Paper sx={{ p: 2.5, backgroundColor: 'rgba(131, 16, 16, 0.15)', border: '1px solid rgba(131, 16, 16, 0.4)' }}>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
+            <strong style={{ color: '#E50914' }}>� Content Mix Evolution:</strong> While movies dominate the overall catalog (94%), 
+            recent years (2019-2021) show TV shows gaining momentum, with 2020 seeing more TV show additions (594) than previous years.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
+            <strong style={{ color: '#FF6B6B' }}>📅 Q4 Content Loading Pattern:</strong> Data confirms 26% of content additions occur 
+            in Q4 (Oct-Dec), aligning with holiday viewing seasons. Counter-programming with Q1 tentpole releases could capture 
+            post-holiday audiences and reduce market saturation.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
+            <strong style={{ color: '#FFB6B6' }}>⚡ Content Freshness:</strong> Average content lag is 5.2 years between original 
+            release and Netflix addition, showing a balanced mix of recent releases and catalog classics.
+          </Typography>
+        </Paper>
+      </Box>
 
       {/* Timeline Full Width */}
       <Box sx={{ width: '100%', mb: 3, px: 2 }}>

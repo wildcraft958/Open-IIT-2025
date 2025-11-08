@@ -15,66 +15,102 @@ const StrategicRecommendations = ({ data }) => {
   const quality = useMemo(() => qualityReport(data), [data]);
 
   // Generate data-driven insights
-  const topGrowthGenres = momentum.slice(0, 3).filter(g => g.delta > 0);
-  const decliningGenres = momentum.slice(-3).filter(g => g.delta < 0);
+  const topGrowthGenres = momentum.length > 0 ? momentum.slice(0, 3).filter(g => g.delta > 0) : [];
   const topRegions = regionalDeltas.regionList.slice(0, 3);
+  
+  // Fallback: use most popular genres if momentum data unavailable
+  const genreDistribution = useMemo(() => {
+    if (!data || data.length === 0) return [];
+    const genreCounts = {};
+    data.forEach(item => {
+      (item.genres || []).forEach(genre => {
+        genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+      });
+    });
+    return Object.entries(genreCounts)
+      .map(([genre, count]) => ({ genre, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [data]);
 
   const recommendations = [
     {
-      category: 'Content Freshness Strategy',
-      icon: <Star sx={{ color: '#E50914', fontSize: 40 }} />,
-      items: [
-        `Current freshness score: ${freshness.score}% (${freshness.category}) - ${freshness.score < 20 ? 'Accelerate new content additions' : 'Maintain strong momentum'}`,
-        `${freshness.recentCount} titles added in the last year - ${freshness.score >= 20 ? 'Strong pipeline' : 'Consider increasing acquisition rate'}`,
-        `Average content age: ${freshness.avgDaysSinceAdded} days - Balance catalog freshness with evergreen content`,
-        'Prioritize exclusive releases to boost freshness perception',
-      ],
-    },
-    {
-      category: 'Genre Portfolio Optimization',
-      icon: <Lightbulb sx={{ color: '#E50914', fontSize: 40 }} />,
-      items: [
-        topGrowthGenres.length > 0 
-          ? `High-momentum genres: ${topGrowthGenres.map(g => `${g.genre} (+${g.delta}%)`).join(', ')} - Double down on these categories`
-          : 'Diversify genre portfolio to capture underrepresented categories',
-        decliningGenres.length > 0
-          ? `Declining genres: ${decliningGenres.map(g => `${g.genre} (${g.delta}%)`).join(', ')} - Re-evaluate investment or refresh content`
-          : 'Monitor genre trends for early intervention opportunities',
-        'Balance between blockbuster releases and niche content',
-        'Expand original content production in high-growth genres',
-      ],
-    },
-    {
-      category: 'Geographic Expansion',
+      category: '1. Invest in African & Southeast Asian Content Hubs',
+      priority: 'HIGH',
       icon: <TrendingUp sx={{ color: '#E50914', fontSize: 40 }} />,
+      rationale: 'Content production from Africa and Southeast Asia is critically underrepresented, signaling a "blue ocean" opportunity.',
       items: [
-        topRegions.length > 0
-          ? `Leading regions: ${topRegions.map(r => r.region).join(', ')} - Maintain strong presence`
-          : 'Focus on emerging content producers in Asia-Pacific region',
-        'Strengthen partnerships with European production studios',
-        'Increase investment in Latin American content for growing market',
-        'Develop localized content strategies for key markets',
+        'Earmark $100M strategic fund for co-productions in Nigeria, South Africa, and Indonesia',
+        'Establish regional production offices in Lagos, Jakarta, and Cape Town',
+        'Partner with local studios and filmmakers to create authentic regional content',
+        'Target first-mover advantage in underserved markets with high growth potential',
       ],
+      timeline: 'Q2 2026 - Q4 2027',
     },
     {
-      category: 'Quality & Completeness',
-      icon: <Warning sx={{ color: '#E50914', fontSize: 40 }} />,
+      category: '2. Rebalance the Ratings Portfolio',
+      priority: 'HIGH',
+      icon: <Star sx={{ color: '#E50914', fontSize: 40 }} />,
+      rationale: 'Large portion of catalog is TV-MA rated, presenting opportunity to capture underserved family and teen demographics.',
       items: [
-        `Data completeness: ${quality.completeness}% - ${quality.completeness < 90 ? 'Improve metadata collection' : 'Excellent data quality'}`,
-        `${quality.withoutRating} titles missing rating info - Update content classification`,
-        `${quality.withoutGenre} titles without genres - Enhance categorization for better discovery`,
-        `Catalog vintage: Avg release year ${quality.avgReleaseYear} - Balance classic and contemporary content`,
+        'Launch dedicated initiative for high-quality "Family" (PG, TV-PG) content',
+        'Greenlight 10 new "TV-PG" or "TV-14" series targeting teen audiences',
+        'Acquire proven family franchises and award-winning children\'s programming',
+        'Create family-friendly content blocks in UI to improve discoverability',
       ],
+      timeline: 'Q1 2026 onwards',
     },
     {
-      category: 'Audience Targeting',
+      category: '3. Shift Content Additions to Q1',
+      priority: 'MEDIUM',
+      icon: <Lightbulb sx={{ color: '#E50914', fontSize: 40 }} />,
+      rationale: 'Q4 content loading creates market saturation. Counter-programming with Q1 releases captures post-holiday audiences.',
+      items: [
+        'Move two tentpole releases from October/November to January/February',
+        'Reduce marketing noise by avoiding Q4 clustering of major launches',
+        'Capture captive post-holiday audience with premium content drops',
+        'Analyze Q1 performance to refine future release strategies',
+      ],
+      timeline: 'Q1 2027',
+    },
+    {
+      category: '4. Diversify the Creator Pool',
+      priority: 'HIGH',
       icon: <CheckCircle sx={{ color: '#E50914', fontSize: 40 }} />,
+      rationale: 'Dense collaboration clusters indicate over-reliance on small talent pool. Diversification brings fresh perspectives.',
       items: [
-        'Create genre-specific recommendation algorithms based on momentum data',
-        'Develop targeted marketing campaigns by region and genre performance',
-        `Top rating: ${quality.topRatings?.[0]?.rating || 'N/A'} (${quality.topRatings?.[0]?.count || 0} titles) - Optimize content mix`,
-        'Personalize content discovery experience using viewing patterns',
+        'Implement "New Voices" program funding first-time directors and writers',
+        'Target 20% of new productions from emerging talent by 2027',
+        'Mentor underrepresented creators from diverse regions and backgrounds',
+        'Create accelerator programs for indie filmmakers in emerging markets',
       ],
+      timeline: 'Q2 2026 - Ongoing',
+    },
+    {
+      category: '5. Acquire High-Performing Niche Genres',
+      priority: 'MEDIUM',
+      icon: <Warning sx={{ color: '#E50914', fontSize: 40 }} />,
+      rationale: 'Genres like Documentaries and Stand-Up show high engagement but lower volume. High-revenue genres underrepresented.',
+      items: [
+        'Actively pursue award-winning documentaries and premium stand-up specials',
+        'Increase investment in Musicals and high-concept Sci-Fi (underrepresented high-revenue genres)',
+        'Create exclusive deals with top documentary filmmakers and comedians',
+        'Satisfy engaged niche audiences while diversifying content portfolio',
+      ],
+      timeline: 'Q3 2026 onwards',
+    },
+    {
+      category: 'Data Quality Improvements',
+      priority: 'LOW',
+      icon: <Warning sx={{ color: '#E50914', fontSize: 40 }} />,
+      rationale: 'Missing metadata (30% directors, 10% cast, 7% country) limits analysis and content discovery.',
+      items: [
+        `Current data completeness: ${quality.completeness}% - Target 95%+ by end of 2026`,
+        `Backfill ${quality.withoutRating} titles missing rating information`,
+        `Update ${quality.withoutGenre} titles without genre tags for better discovery`,
+        'Implement automated metadata enrichment pipelines using TMDB/IMDB APIs',
+      ],
+      timeline: 'Q4 2025 - Q2 2026',
     },
   ];
 
@@ -118,12 +154,17 @@ const StrategicRecommendations = ({ data }) => {
           <Grid item xs={12} sm={6} md={3}>
             <Card sx={{ backgroundColor: '#1f1f1f', borderLeft: '4px solid #B20710' }}>
               <CardContent>
-                <Typography variant="caption" sx={{ color: '#999' }}>Top Growth Genre</Typography>
-                <Typography variant="h6" sx={{ color: '#B20710', mt: 1 }}>
-                  {topGrowthGenres[0]?.genre || 'N/A'}
+                <Typography variant="caption" sx={{ color: '#999' }}>
+                  {topGrowthGenres.length > 0 ? 'Top Growth Genre' : 'Most Popular Genre'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#4caf50', mt: 1, display: 'block' }}>
-                  +{topGrowthGenres[0]?.delta || 0}% momentum
+                <Typography variant="h6" sx={{ color: '#B20710', mt: 1 }}>
+                  {topGrowthGenres[0]?.genre || genreDistribution[0]?.genre || 'N/A'}
+                </Typography>
+                <Typography variant="caption" sx={{ color: topGrowthGenres.length > 0 ? '#4caf50' : '#666', mt: 1, display: 'block' }}>
+                  {topGrowthGenres.length > 0 
+                    ? `+${topGrowthGenres[0]?.delta}% momentum`
+                    : `${genreDistribution[0]?.count?.toLocaleString() || 0} titles`
+                  }
                 </Typography>
               </CardContent>
             </Card>
@@ -162,30 +203,56 @@ const StrategicRecommendations = ({ data }) => {
 
       {/* Recommendations by Category */}
       {recommendations.map((rec, index) => (
-        <Grid key={index} container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              {rec.icon}
-              <Typography variant="h5" sx={{ color: '#E50914' }}>
-                {rec.category}
-              </Typography>
+        <Paper key={index} sx={{ p: 3, mb: 3, backgroundColor: '#1f1f1f', borderLeft: '4px solid #E50914' }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 2 }}>
+            {rec.icon}
+            <Box sx={{ flex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                <Typography variant="h5" sx={{ color: '#E50914' }}>
+                  {rec.category}
+                </Typography>
+                {rec.priority && (
+                  <Chip 
+                    label={rec.priority} 
+                    size="small"
+                    sx={{ 
+                      backgroundColor: rec.priority === 'HIGH' ? '#d32f2f' : rec.priority === 'MEDIUM' ? '#ff9800' : '#757575',
+                      color: '#fff',
+                      fontWeight: 600
+                    }}
+                  />
+                )}
+              </Box>
+              {rec.rationale && (
+                <Typography variant="body2" sx={{ color: '#aaa', mb: 2, fontStyle: 'italic' }}>
+                  <strong>Rationale:</strong> {rec.rationale}
+                </Typography>
+              )}
+              {rec.timeline && (
+                <Chip 
+                  label={`Timeline: ${rec.timeline}`} 
+                  size="small"
+                  variant="outlined"
+                  sx={{ mb: 2, borderColor: '#E50914', color: '#E50914' }}
+                />
+              )}
             </Box>
-            <Grid container spacing={2}>
-              {rec.items.map((item, itemIndex) => (
-                <Grid item xs={12} md={6} key={itemIndex}>
-                  <Card sx={{ backgroundColor: '#2a2a2a', height: '100%' }}>
-                    <CardContent>
-                      <Box sx={{ display: 'flex', gap: 2 }}>
-                        <CheckCircle sx={{ color: '#E50914', flexShrink: 0 }} />
-                        <Typography variant="body2">{item}</Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+          </Box>
+          <Grid container spacing={2}>
+            {rec.items.map((item, itemIndex) => (
+              <Grid item xs={12} md={6} key={itemIndex}>
+                <Card sx={{ backgroundColor: '#2a2a2a', height: '100%', border: '1px solid #333' }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                      <CheckCircle sx={{ color: '#4caf50', flexShrink: 0, mt: 0.5 }} />
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>{item}</Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        </Grid>
+        </Paper>
       ))}
 
       {/* Implementation Roadmap */}

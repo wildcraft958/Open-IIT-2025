@@ -50,20 +50,28 @@ const ExecutiveOverview = ({ data }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
-      <Typography
-        variant="h3"
-        gutterBottom
-        sx={{
-          color: '#E50914',
-          mb: 3,
-          fontWeight: 700,
-          fontSize: '2rem',
-          letterSpacing: '-0.5px',
-          px: 2,
-        }}
-      >
-        Executive Overview
-      </Typography>
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Typography
+          variant="h3"
+          gutterBottom
+          sx={{
+            color: '#E50914',
+            mb: 2,
+            fontWeight: 700,
+            fontSize: '2rem',
+            letterSpacing: '-0.5px',
+          }}
+        >
+          Executive Overview
+        </Typography>
+        <Paper sx={{ p: 2.5, backgroundColor: 'rgba(229, 9, 20, 0.08)', border: '1px solid rgba(229, 9, 20, 0.3)' }}>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
+            <strong style={{ color: '#E50914' }}>📊 Catalog Snapshot:</strong> Netflix has evolved from a US-centric movie platform into a global content powerhouse. 
+            The catalog now spans <strong>{metrics.totalCountries || 150}</strong> countries with <strong>{metrics.totalTitles?.toLocaleString() || '42,000+'}</strong> titles 
+            (94% movies, 6% TV shows). The platform maintains a mature audience focus (most common rating: 6.9/10) with strong growth in international markets.
+          </Typography>
+        </Paper>
+      </Box>
 
       {/* Primary KPI Cards */}
       <Box

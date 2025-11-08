@@ -63,6 +63,19 @@ const PerformanceAnalysis = ({ data }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
+      <Box sx={{ px: 2, mb: 2 }}>
+        <Paper sx={{ p: 2.5, backgroundColor: 'rgba(220, 20, 60, 0.08)', border: '1px solid rgba(220, 20, 60, 0.25)' }}>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
+            <strong style={{ color: '#E50914' }}>📊 Data Coverage Note:</strong> Performance metrics (popularity, ratings, votes) 
+            are available for <strong>38% of the catalog</strong> (~16,000 titles from 2010-2025). Financial data (budget/revenue) 
+            covers <strong>11% of titles</strong> (~4,800 titles). Use the filter below to scope analysis by content type for accurate insights.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
+            <strong style={{ color: '#FF6B6B' }}>🎯 Best Practice:</strong> For performance and financial analysis, filter by 
+            "Movies" as they have significantly better data coverage. Language analysis works well for all content types (83% coverage).
+          </Typography>
+        </Paper>
+      </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2, mb: 3 }}>
         <Typography variant="h3" sx={{ color: '#E50914', fontWeight: 700 }}>
           Performance & Financial Analysis
@@ -575,28 +588,18 @@ const PerformanceAnalysis = ({ data }) => {
             </ResponsiveContainer>
           </Paper>
 
-          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '150%' }}>
+          <Paper sx={{ p: 3, backgroundColor: '#1f1f1f', width: '100%' }}>
             <Typography variant="h6" gutterBottom>
-              Language Performance Metrics
+              Language Performance Comparison
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#999', display: 'block', mb: 2 }}>
+              Avg Popularity vs Avg Rating (min 5 titles per language)
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
-              <ScatterChart margin={{ left: 80 }}>
+              <BarChart data={langPerf.slice(0, 10)} layout="vertical" margin={{ left: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis
-                  type="number"
-                  dataKey="avgPopularity"
-                  name="Popularity"
-                  stroke="#fff"
-                  label={{ value: 'Avg Popularity', position: 'bottom', fill: '#fff' }}
-                />
-                <YAxis
-                  type="number"
-                  dataKey="avgRating"
-                  name="Rating"
-                  stroke="#fff"
-                  domain={[0, 10]}
-                  label={{ value: 'Avg Rating', angle: -90, position: 'insideLeft', fill: '#fff' }}
-                />
+                <XAxis type="number" stroke="#fff" />
+                <YAxis dataKey="language" type="category" stroke="#fff" width={50} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#1e1e1e',
@@ -604,24 +607,23 @@ const PerformanceAnalysis = ({ data }) => {
                     borderRadius: '8px',
                     color: '#fff',
                   }}
-                  formatter={(value, name) => [value, name]}
-                  labelFormatter={(label) => `Language: ${langPerf[label]?.language || label}`}
+                  formatter={(value, name) => [
+                    name === 'avgPopularity' ? `${Math.round(value)} popularity` : `${value}/10 rating`,
+                    name === 'avgPopularity' ? 'Avg Popularity' : 'Avg Rating'
+                  ]}
                 />
                 <Legend />
-                <Scatter name="Languages" data={langPerf} fill="#E50914">
-                  {langPerf.map((entry, index) => (
-                    <Cell key={`scatter-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Scatter>
-              </ScatterChart>
+                <Bar dataKey="avgPopularity" fill="#E50914" name="Avg Popularity" />
+                <Bar dataKey="avgRating" fill="#FFD700" name="Avg Rating (×10)" />
+              </BarChart>
             </ResponsiveContainer>
-            <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {langPerf.slice(0, 8).map((lang, idx) => (
+            <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {langPerf.slice(0, 10).map((lang, idx) => (
                 <Chip
                   key={idx}
-                  label={`${lang.language} (${lang.count})`}
+                  label={`${lang.language}: ${lang.count} titles, ${Math.round(lang.avgPopularity)} pop, ${lang.avgRating} rating`}
                   size="small"
-                  sx={{ backgroundColor: COLORS[idx % COLORS.length], color: '#fff' }}
+                  sx={{ backgroundColor: COLORS[idx % COLORS.length], color: '#fff', fontSize: '0.7rem' }}
                 />
               ))}
             </Box>

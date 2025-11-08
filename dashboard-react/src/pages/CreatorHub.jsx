@@ -12,9 +12,23 @@ const CreatorHub = ({ data }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
-      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
-        Creator Hub
-      </Typography>
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 2 }}>
+          Creator Hub
+        </Typography>
+        <Paper sx={{ p: 2.5, backgroundColor: 'rgba(255, 107, 107, 0.08)', border: '1px solid rgba(255, 107, 107, 0.25)' }}>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
+            <strong style={{ color: '#E50914' }}>🎬 Creator Network Concentration:</strong> Analysis reveals a small group of 
+            directors and actors form dense collaboration clusters. While these relationships produce quality content, over-reliance 
+            on established talent limits fresh perspectives.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
+            <strong style={{ color: '#FF6B6B' }}>🌟 Diversification Imperative:</strong> <em>Recommendation: Launch "New Voices" 
+            program with dedicated funding for first-time directors and writers from underrepresented regions and backgrounds. 
+            Target: 20% of new productions from emerging talent by 2027.</em>
+          </Typography>
+        </Paper>
+      </Box>
 
       {/* Charts grid */}
       <Box

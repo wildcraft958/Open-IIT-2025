@@ -15,9 +15,23 @@ const GeographicInsights = ({ data }) => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: '100%', px: 0 }}>
-      <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 3, px: 2 }}>
-        Geographic Insights
-      </Typography>
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Typography variant="h3" gutterBottom sx={{ color: '#E50914', mb: 2 }}>
+          Geographic Insights
+        </Typography>
+        <Paper sx={{ p: 2.5, backgroundColor: 'rgba(178, 7, 16, 0.12)', border: '1px solid rgba(178, 7, 16, 0.35)' }}>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6, mb: 1 }}>
+            <strong style={{ color: '#E50914' }}>🌍 Global Content Dominance Shifting:</strong> While the US remains the production 
+            powerhouse, there's accelerating growth from South Korea, India, and European markets. This diversification strengthens 
+            Netflix's global positioning and local market penetration.
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#ddd', lineHeight: 1.6 }}>
+            <strong style={{ color: '#FF6B6B' }}>🔵 Blue Ocean Opportunity:</strong> Africa and Southeast Asia (Nigeria, South Africa, 
+            Indonesia) are critically underrepresented. <em>Recommendation: Establish $100M strategic fund for co-productions in emerging 
+            markets to capture first-mover advantage.</em>
+          </Typography>
+        </Paper>
+      </Box>
 
       {/* Charts grid */}
       <Box
